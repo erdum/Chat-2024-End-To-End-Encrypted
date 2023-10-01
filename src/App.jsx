@@ -21,7 +21,7 @@ const App = () => {
       <div className="bg-slate-100 min-h-screen flex justify-center items-center text-center flex-col">
         <div className="flex gap-4 items-center mb-8">
           <img src={icon} className="w-10" />
-          <h1 className="font-black text-slate-700 text-2xl">AnsariChat</h1>
+          <h1 className="font-black text-slate-700 text-2xl">De-Centralize Chat</h1>
         </div>
         <img src={loader} alt="Loader" />
       </div>
