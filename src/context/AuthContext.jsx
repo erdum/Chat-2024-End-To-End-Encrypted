@@ -12,7 +12,13 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      // Session gone clear IndexedDB
+      if (user === null) {
+        const indexedDB = await IndexedDB.initialize();
+        IndexedDB.clearInstances(indexedDB);
+      }
+
       setCurrentUser(user);
       setLoading(false);
     });

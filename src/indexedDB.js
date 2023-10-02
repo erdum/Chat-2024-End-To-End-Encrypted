@@ -33,10 +33,17 @@ const IndexedDB = (() => {
 		});
 	};
 
+	const clearInstances = async (db) => {
+		const transaction = db.transaction('cryptoInstance', 'readwrite');
+		const cryptoInstanceStore = transaction.objectStore('cryptoInstance');
+		cryptoInstanceStore.clear();
+	};
+
 	return {
 		initialize,
 		getCryptoInstance,
 		saveCryptoInstance,
+		clearInstances,
 	}
 })();
 
