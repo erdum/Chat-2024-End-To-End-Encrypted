@@ -39,7 +39,7 @@ const CurrentUserHeader = () => {
             </Link> */}
             <div
               className="cursor-pointer hover:bg-slate-100 py-2 px-5 text-slate-700 flex gap-2 items-center"
-              onClick={() => signOut(auth)}
+              onClick={async () => await signOut(auth)}
             >
               <LogoutIcon /> Logout
             </div>
