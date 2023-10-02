@@ -33,19 +33,20 @@ export const AuthProvider = ({ children }) => {
       if (currentUser) {
         const userDocRef = doc(db, "users", currentUser.uid);
         const userDocSnap = await getDoc(userDocRef);
+        let exportedPublicKey;
 
         // Try to get keyPair from IndexedDB
-        const db = await IndexedDB.initialize();
-        const localKeyPairInstance = await IndexedDB.getCryptoInstance(db, uid);
+        const indexedDB = await IndexedDB.initialize();
+        const localKeyPairInstance = await IndexedDB.getCryptoInstance(indexedDB, currentUser.uid);
 
         if (localKeyPairInstance === null) {
           // Session gone generate new keyPair
           const newKeyPairInstance = await Crypto.generateKeyPairInstance();
           // Save newKeyPair to IndexedDB
-          await IndexedDB.saveCryptoInstance(db, structuredClone(newKeyPairInstance), currentUser.uid);
-          const exportedPublicKey = await Crypto.exportPublicKey(newKeyPairInstance.publicKey);
+          await IndexedDB.saveCryptoInstance(indexedDB, structuredClone(newKeyPairInstance), currentUser.uid);
+          exportedPublicKey = await Crypto.exportPublicKey(newKeyPairInstance.publicKey);
         } else {
-          const exportedPublicKey = await Crypto.exportPublicKey(localKeyPairInstance.publicKey);
+          exportedPublicKey = await Crypto.exportPublicKey(localKeyPairInstance.publicKey);
         }
 
         if (!userDocSnap.exists() || !userDocSnap.data().publicKey || exportedPublicKey != userDocSnap.data().publicKey) {
