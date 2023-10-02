@@ -9,7 +9,7 @@ const Crypto = (() => {
 
 	// return CryptoKey object with asymmetric keyPair
 	const generateKeyPairInstance = async () => {
-		newKeyPairInstance = await window.crypto.subtle.generateKey(
+		const newKeyPairInstance = await window.crypto.subtle.generateKey(
 			{
 		    name: "RSA-OAEP",
 		    modulusLength: 4096,
