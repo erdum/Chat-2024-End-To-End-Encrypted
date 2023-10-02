@@ -1,31 +1,25 @@
-import IndexedDB from "./indexedDB";
-
 const Crypto = (() => {
 	let keyPairInstance = null;
 
-	// uid: user unique id, returns exported public key in jwk format
-	const exportPublicKey = async (uid) => {
-		const db = await IndexedDB.initialize();
-		keyPairInstance = await IndexedDB.getCryptoInstance(db, uid);
+	// publicKey: CryptoKey, returns exported public key in jwk format
+	const exportPublicKey = async (publicKey) => {
+		const exportPublicKey = await window.crypto.subtle.exportKey('jwk', publicKey);
+		return exportPublicKey;
+	};
 
-		if (keyPairInstance === null) {
-			keyPairInstance = await window.crypto.subtle.generateKey(
-				{
-			    name: "RSA-OAEP",
-			    modulusLength: 4096,
-			    publicExponent: new Uint8Array([1, 0, 1]),
-			    hash: "SHA-256"
-			  },
-			  false,
-			  ["decrypt", "encrypt"]
-			);
-			const exportPublicKey = await window.crypto.subtle.exportKey('jwk', keyPairInstance.publicKey);
-			await IndexedDB.saveCryptoInstance(db, structuredClone(keyPairInstance), uid);
-			return exportPublicKey;
-		} else {
-			const exportPublicKey = await window.crypto.subtle.exportKey('jwk', keyPairInstance.publicKey);
-			return exportPublicKey;
-		}
+	// return CryptoKey object with asymmetric keyPair
+	const generateKeyPairInstance = async () => {
+		newKeyPairInstance = await window.crypto.subtle.generateKey(
+			{
+		    name: "RSA-OAEP",
+		    modulusLength: 4096,
+		    publicExponent: new Uint8Array([1, 0, 1]),
+		    hash: "SHA-256"
+		  },
+		  false,
+		  ["decrypt", "encrypt"]
+		);
+		return newKeyPairInstance;
 	};
 
 	// data: string, receiverPublicKey: asymmetric public-key in (jwk) format
@@ -51,6 +45,7 @@ const Crypto = (() => {
 	};
 
 	return {
+		generateKeyPairInstance,
 		exportPublicKey,
 		encodeCipher,
 		decodeCipher,
