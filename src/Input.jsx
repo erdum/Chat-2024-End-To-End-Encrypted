@@ -2,59 +2,54 @@ import React, { useState } from "react";
 import SendIcon from "@mui/icons-material/Send";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import {
-  getStorage,
-  ref,
-  uploadString,
-  getDownloadURL,
-} from "firebase/storage";
+import { updateDoc, doc } from "firebase/firestore";
 import { auth, db } from "./firebase";
 import Loader from "./assets/oval.svg";
+import Crypto from "./crypto";
 
 const Input = ({ selectedUser }) => {
   const [message, setMessage] = useState("");
-  const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setImage(null);
-      setImagePreview(null);
-    }
+    // const file = e.target.files[0];
+    // if (file) {
+    //   const reader = new FileReader();
+    //   reader.onloadend = () => {
+    //     setImagePreview(reader.result);
+    //   };
+    //   reader.readAsDataURL(file);
+    // } else {
+    //   setImagePreview(null);
+    // }
   };
 
   const sendMessage = async (e) => {
     setMessage("");
-    if (message.trim() !== "" || image) {
+    if (message.trim() !== "" || imagePreview) {
       try {
-        let imageUrl = null;
-        if (image) {
-          const storage = getStorage();
-          const storageRef = ref(storage, image.name);
-          setUploading(true);
-          await uploadString(storageRef, imagePreview, "data_url");
-          imageUrl = await getDownloadURL(storageRef);
-          setUploading(false);
-          setImage(null);
-          setImagePreview(null);
-        }
+        // let imageBase64 = null;
+        // let imageMetaData = null;
 
-        await addDoc(collection(db, "chats"), {
+        // if (imagePreview) {
+        //   setUploading(true);
+        //   const [metaData, image] = imagePreview.split(',');
+        //   imageMetaData = metaData;
+        //   imageBase64 = image;
+        //   setUploading(false);
+        //   setImagePreview(null);
+        // }
+        const payload = {
           senderId: auth.currentUser.uid,
-          receiverId: selectedUser.uid,
           message,
-          imageUrl,
-          timestamp: serverTimestamp(),
+          timestamp: Date.now(),
+        };
+        const cipher = await Crypto.encodeCipher(JSON.stringify(payload), selectedUser.publicKey);
+        
+        const userDocRef = doc(db, "users", selectedUser.uid);
+        await updateDoc(userDocRef, {
+          cipher
         });
       } catch (error) {
         console.log(error);
