@@ -1,6 +1,4 @@
 const Crypto = (() => {
-	let keyPairInstance = null;
-
 	// publicKey: CryptoKey, returns exported public key in jwk format
 	const exportPublicKey = async (publicKey) => {
 		const exportPublicKey = await window.crypto.subtle.exportKey('jwk', publicKey);
@@ -23,26 +21,46 @@ const Crypto = (() => {
 	};
 
 	// data: string, receiverPublicKey: asymmetric public-key in (jwk) format
-	// return: ArrayBuffer
+	// return: base64
 	const encodeCipher = async (data, receiverPublicKey) => {
 		const key = await window.crypto.subtle.importKey('jwk', receiverPublicKey, {
 	    name: "RSA-OAEP",
 	    hash: "SHA-256"
-	  }, false, ['encrypt']);
+	  }, true, ['encrypt']);
 		const cipherBytesArray = await window.crypto.subtle.encrypt({
 			name: "RSA-OAEP"
 		}, key, new TextEncoder().encode(data));
-		return cipherBytesArray;
+		return arrayBufferToBase64(cipherBytesArray);
 	};
 
-	// cipher: ArrayBuffer
+	// cipher: base64
 	// return: string
-	const decodeCipher = async (cipher) => {
-		const decodedCipher = new TextDecoder.decode(await window.crypto.subtle.decrypt({
+	const decodeCipher = async (cipher, receiverPrivateKey) => {
+		const decodedCipher = await window.crypto.subtle.decrypt({
 			name: "RSA-OAEP"
-		}, keyPairInstance.privateKey, cipher));
-		return decodeCipher;
+		}, receiverPrivateKey, base64ToArrayBuffer(cipher));
+		return new TextDecoder().decode(decodedCipher);
 	};
+
+	const arrayBufferToBase64 = (buffer) => {
+    var binary = '';
+    var bytes = new Uint8Array(buffer);
+    var len = bytes.byteLength;
+    for (var i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+  }
+
+  const base64ToArrayBuffer = (base64) => {
+    var binary_string = window.atob(base64);
+    var len = binary_string.length;
+    var bytes = new Uint8Array(len);
+    for (var i = 0; i < len; i++) {
+      bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes.buffer;
+	}
 
 	return {
 		generateKeyPairInstance,
