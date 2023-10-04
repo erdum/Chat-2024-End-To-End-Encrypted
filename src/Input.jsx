@@ -1,16 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import SendIcon from "@mui/icons-material/Send";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { updateDoc, doc, arrayUnion } from "firebase/firestore";
-import { auth, db } from "./firebase";
+import { db } from "./firebase";
 import Loader from "./assets/oval.svg";
 import Crypto from "./crypto";
+import { AuthContext } from "./context/AuthContext";
 
 const Input = ({ selectedUser }) => {
   const [message, setMessage] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const { currentUser } = useContext(AuthContext);
 
   const handleImageChange = (e) => {
     // const file = e.target.files[0];
@@ -41,7 +43,7 @@ const Input = ({ selectedUser }) => {
         //   setImagePreview(null);
         // }
         const payload = {
-          senderId: auth.currentUser.uid,
+          senderId: currentUser.uid,
           message,
           timestamp: Date.now(),
         };
