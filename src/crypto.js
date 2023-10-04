@@ -34,12 +34,23 @@ const Crypto = (() => {
 	};
 
 	// cipher: base64
-	// return: string
+	// return: object
 	const decodeCipher = async (cipher, receiverPrivateKey) => {
 		const decodedCipher = await window.crypto.subtle.decrypt({
 			name: "RSA-OAEP"
 		}, receiverPrivateKey, base64ToArrayBuffer(cipher));
 		return new TextDecoder().decode(decodedCipher);
+	};
+
+	// ciphers: array[base64]
+	// return: array[object]
+	const decodeAllCiphers = async (ciphers, receiverPrivateKey) => {
+		const objects = [];
+		ciphers.forEach(async (cipher) => {
+			const object = await decodeCipher(cipher, receiverPrivateKey);
+			objects.push(object);
+			console.log(object);
+		})
 	};
 
 	const arrayBufferToBase64 = (buffer) => {
@@ -67,6 +78,7 @@ const Crypto = (() => {
 		exportPublicKey,
 		encodeCipher,
 		decodeCipher,
+		decodeAllCiphers,
 	};
 })();
 
