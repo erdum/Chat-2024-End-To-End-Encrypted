@@ -36,11 +36,38 @@ const IndexedDB = (() => {
 		cryptoInstanceStore.clear();
 	};
 
+	const saveMessages = async (db, messages, uid) => {
+		const transaction = db.transaction('messages', 'readwrite');
+		const messagesStore = transaction.objectStore('messages');
+		const request = messagesStore.put(messages, uid);
+		return new Promise((resolve, reject) => {
+			request.onsuccess = () => resolve(request);
+		});
+	};
+
+	const getMessages = async (db, uid) => {
+		const transaction = db.transaction('messages', 'readonly');
+		const messagesStore = transaction.objectStore('messages');
+		const request = messagesStore.get(uid);
+		return new Promise((resolve, reject) => {
+			request.onsuccess = () => resolve(request.result ?? []);
+		});
+	};
+
+	const clearMessages = async (db) => {
+		const transaction = db.transaction('messages', 'readwrite');
+		const messagesStore = transaction.objectStore('messages');
+		messagesStore.clear();
+	};
+
 	return {
 		initialize,
 		getCryptoInstance,
 		saveCryptoInstance,
 		clearInstances,
+		saveMessages,
+		getMessages,
+		clearMessages,
 	}
 })();
 
