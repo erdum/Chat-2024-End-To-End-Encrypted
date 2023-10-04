@@ -7,6 +7,17 @@ import IndexedDB from "../indexedDB";
 
 export const AuthContext = createContext();
 
+const syncPublicKeyToRemote = async (uid, publicKey) => {
+  const userDocRef = doc(db, "users", uid);
+  const userDocSnap = await getDoc(userDocRef);
+
+  if (!userDocSnap.exists() || !userDocSnap.data().publicKey || publicKey != userDocSnap.data().publicKey) {
+    await updateDoc(userDocRef, {
+      publicKey,
+    });
+  }
+};
+
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -48,16 +59,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
 
     if (exportedPublicKey) {
-      (async function () {
-        const userDocRef = doc(db, "users", currentUser.uid);
-        const userDocSnap = await getDoc(userDocRef);
-
-        if (!userDocSnap.exists() || !userDocSnap.data().publicKey || exportedPublicKey != userDocSnap.data().publicKey) {
-          await updateDoc(userDocRef, {
-            publicKey: exportedPublicKey,
-          });
-        }
-      })();
+      syncPublicKeyToRemote(currentUser.uid, exportedPublicKey);
     }
   }, [exportedPublicKey]);
 
