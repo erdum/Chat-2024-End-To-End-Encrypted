@@ -34,7 +34,7 @@ const Crypto = (() => {
 	};
 
 	// cipher: base64
-	// return: object
+	// return: string
 	const decodeCipher = async (cipher, receiverPrivateKey) => {
 		const decodedCipher = await window.crypto.subtle.decrypt({
 			name: "RSA-OAEP"
@@ -43,7 +43,7 @@ const Crypto = (() => {
 	};
 
 	// ciphers: array[base64]
-	// return: array[object]
+	// return: array[string]
 	const decodeAllCiphers = async (ciphers, receiverPrivateKey) => {
 		const promises = [];
 		ciphers.forEach(cipher => promises.push(decodeCipher(cipher, receiverPrivateKey)));
