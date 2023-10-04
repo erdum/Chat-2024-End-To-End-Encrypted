@@ -45,12 +45,9 @@ const Crypto = (() => {
 	// ciphers: array[base64]
 	// return: array[object]
 	const decodeAllCiphers = async (ciphers, receiverPrivateKey) => {
-		const objects = [];
-		ciphers.forEach(async (cipher) => {
-			const object = await decodeCipher(cipher, receiverPrivateKey);
-			objects.push(object);
-			console.log(object);
-		})
+		const promises = [];
+		ciphers.forEach(cipher => promises.push(decodeCipher(cipher, receiverPrivateKey)));
+		return Promise.all(promises);
 	};
 
 	const arrayBufferToBase64 = (buffer) => {
