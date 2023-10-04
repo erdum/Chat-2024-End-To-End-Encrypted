@@ -2,12 +2,9 @@ const IndexedDB = (() => {
 	const initialize = async () => {
 		const request = window.indexedDB.open('dchat-store', 1);
 
-		request.onupgradeneeded = () => {
-			const db = request.result;
-
-			if (!db.objectStoreNames.contains('cryptoInstance')) {
-				db.createObjectStore('cryptoInstance');
-			}
+		request.onupgradeneeded = ({ target: { result: db }}) => {
+			db.createObjectStore('cryptoInstance');
+			db.createObjectStore('messages');
 		};
 		return new Promise((resolve, reject) => {
 			request.onerror = (event) => console.error(event);
