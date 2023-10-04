@@ -88,10 +88,8 @@ export const AuthProvider = ({ children }) => {
     }
   }, [currentUser]);
 
-  useEffect(() => console.log(messages), [messages]);
-
   return (
-    <AuthContext.Provider value={{ currentUser, loading }}>
+    <AuthContext.Provider value={{ currentUser, loading, messages }}>
       {children}
     </AuthContext.Provider>
   );
