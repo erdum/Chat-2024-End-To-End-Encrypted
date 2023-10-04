@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import SendIcon from "@mui/icons-material/Send";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
-import { updateDoc, doc } from "firebase/firestore";
+import { updateDoc, doc, arrayUnion } from "firebase/firestore";
 import { auth, db } from "./firebase";
 import Loader from "./assets/oval.svg";
 import Crypto from "./crypto";
@@ -49,7 +49,7 @@ const Input = ({ selectedUser }) => {
         
         const userDocRef = doc(db, "users", selectedUser.uid);
         await updateDoc(userDocRef, {
-          cipher
+          unreadCiphers: arrayUnion(cipher)
         });
       } catch (error) {
         console.log(error);
