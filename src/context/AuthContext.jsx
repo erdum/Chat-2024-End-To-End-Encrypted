@@ -10,6 +10,7 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [exportedPublicKey, setExportedPublicKey] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -17,6 +18,24 @@ export const AuthProvider = ({ children }) => {
       if (user === null) {
         const indexedDB = await IndexedDB.initialize();
         IndexedDB.clearInstances(indexedDB);
+      } else {
+        // Load previous key or generate a new one and save
+        (async function () {
+          const indexedDB = await IndexedDB.initialize();
+          const localKeyPairInstance = await IndexedDB.getCryptoInstance(indexedDB, user.uid);
+
+          if (localKeyPairInstance === null) {
+            const newKeyPairInstance = await Crypto.generateKeyPairInstance();
+            await IndexedDB.saveCryptoInstance(indexedDB, structuredClone(newKeyPairInstance), user.uid);
+            const publicKey = await Crypto.exportPublicKey(newKeyPairInstance.publicKey);
+            setExportedPublicKey(publicKey);
+            user.keyInstance = newKeyPairInstance;
+          } else {
+            const publicKey = await Crypto.exportPublicKey(localKeyPairInstance.publicKey);
+            setExportedPublicKey(publicKey);
+            user.keyInstance = localKeyPairInstance;
+          }
+        })();
       }
 
       setCurrentUser(user);
@@ -27,36 +46,20 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    // Sync user public-key with the server and IndexedDB
-    (async function () {
-    
-      if (currentUser) {
+
+    if (exportedPublicKey) {
+      (async function () {
         const userDocRef = doc(db, "users", currentUser.uid);
         const userDocSnap = await getDoc(userDocRef);
-        let exportedPublicKey;
-
-        // Try to get keyPair from IndexedDB
-        const indexedDB = await IndexedDB.initialize();
-        const localKeyPairInstance = await IndexedDB.getCryptoInstance(indexedDB, currentUser.uid);
-
-        if (localKeyPairInstance === null) {
-          // Session gone generate new keyPair
-          const newKeyPairInstance = await Crypto.generateKeyPairInstance();
-          // Save newKeyPair to IndexedDB
-          await IndexedDB.saveCryptoInstance(indexedDB, structuredClone(newKeyPairInstance), currentUser.uid);
-          exportedPublicKey = await Crypto.exportPublicKey(newKeyPairInstance.publicKey);
-        } else {
-          exportedPublicKey = await Crypto.exportPublicKey(localKeyPairInstance.publicKey);
-        }
 
         if (!userDocSnap.exists() || !userDocSnap.data().publicKey || exportedPublicKey != userDocSnap.data().publicKey) {
           await updateDoc(userDocRef, {
             publicKey: exportedPublicKey,
           });
         }
-      }
-    })();
-  }, [currentUser]);
+      })();
+    }
+  }, [exportedPublicKey]);
 
   return (
     <AuthContext.Provider value={{ currentUser, loading }}>
