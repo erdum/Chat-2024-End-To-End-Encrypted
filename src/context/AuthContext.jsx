@@ -22,7 +22,6 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [exportedPublicKey, setExportedPublicKey] = useState(null);
-  const [allMessages, setAllMessages] = useState([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -64,32 +63,8 @@ export const AuthProvider = ({ children }) => {
     }
   }, [exportedPublicKey]);
 
-  useEffect(() => {
-
-    if (currentUser) {
-      (async () => {
-        const userDocRef = doc(db, "users", currentUser.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        const ciphers = userDocSnap.data().unreadCiphers ?? [];
-
-        const unreadMessages = await Crypto.decodeAllCiphers(ciphers, currentUser.keyInstance.privateKey);
-        const indexedDB = await IndexedDB.initialize();
-        const seenMessages = await IndexedDB.getMessages(indexedDB, currentUser.uid);
-
-        setAllMessages([...seenMessages, ...unreadMessages]);
-
-        if (unreadMessages.length > 0) {
-          await IndexedDB.saveMessages(indexedDB, unreadMessages, currentUser.uid);
-          await updateDoc(userDocRef, {
-            unreadCiphers: arrayRemove(...ciphers)
-          });
-        }
-      })();
-    }
-  }, [currentUser]);
-
   return (
-    <AuthContext.Provider value={{ currentUser, loading, allMessages }}>
+    <AuthContext.Provider value={{ currentUser, loading }}>
       {children}
     </AuthContext.Provider>
   );
