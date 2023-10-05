@@ -12,19 +12,23 @@ const IndexedDB = (() => {
 		});
 	};
 
-	const getCryptoInstance = async (db, uid) => {
+	const getKeyInstance = async (uid) => {
+		const db = await initialize();
 		const transaction = db.transaction('cryptoInstance', 'readonly');
 		const cryptoInstanceStore = transaction.objectStore('cryptoInstance');
 		const request = cryptoInstanceStore.get(uid);
+		db.close();
 		return new Promise((resolve, reject) => {
 			request.onsuccess = () => resolve(request.result ?? null);
 		});
 	};
 
-	const saveCryptoInstance = async (db, object, uid) => {
+	const saveKeyInstance = async (object, uid) => {
+		const db = await initialize();
 		const transaction = db.transaction('cryptoInstance', 'readwrite');
 		const cryptoInstanceStore = transaction.objectStore('cryptoInstance');
 		const request = cryptoInstanceStore.put(object, uid);
+		db.close();
 		return new Promise((resolve, reject) => {
 			request.onsuccess = () => resolve(request);
 		});
@@ -36,19 +40,23 @@ const IndexedDB = (() => {
 		cryptoInstanceStore.clear();
 	};
 
-	const saveMessages = async (db, messages, uid) => {
+	const saveMessages = async (messages, uid) => {
+		const db = await initialize();
 		const transaction = db.transaction('messages', 'readwrite');
 		const messagesStore = transaction.objectStore('messages');
 		const request = messagesStore.put(messages, uid);
+		db.close();
 		return new Promise((resolve, reject) => {
 			request.onsuccess = () => resolve(request);
 		});
 	};
 
-	const getMessages = async (db, uid) => {
+	const getMessages = async (uid) => {
+		const db = await initialize();
 		const transaction = db.transaction('messages', 'readonly');
 		const messagesStore = transaction.objectStore('messages');
 		const request = messagesStore.get(uid);
+		db.close();
 		return new Promise((resolve, reject) => {
 			request.onsuccess = () => resolve(request.result ?? []);
 		});
@@ -69,8 +77,8 @@ const IndexedDB = (() => {
 
 	return {
 		initialize,
-		getCryptoInstance,
-		saveCryptoInstance,
+		getKeyInstance,
+		saveKeyInstance,
 		saveMessages,
 		getMessages,
 		clear,
