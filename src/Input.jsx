@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef, useEffect } from "react";
 import SendIcon from "@mui/icons-material/Send";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
@@ -13,6 +13,11 @@ const Input = ({ selectedUser }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const { currentUser } = useContext(AuthContext);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    inputRef.current.focus();
+  }, []);
 
   const handleImageChange = (e) => {
     // const file = e.target.files[0];
@@ -99,6 +104,7 @@ const Input = ({ selectedUser }) => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
+          ref={inputRef}
         />
         {imagePreview && (
           <div className="absolute bottom-16 left-0 right-0 top-16 border-4 border-slate-400 border-dashed flex justify-center items-center bg-slate-200">
