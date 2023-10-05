@@ -60,14 +60,20 @@ const IndexedDB = (() => {
 		messagesStore.clear();
 	};
 
+	const clear = async () => {
+		const db = await initialize();
+		clearInstances(db);
+		clearMessages(db);
+		db.close();
+	};
+
 	return {
 		initialize,
 		getCryptoInstance,
 		saveCryptoInstance,
-		clearInstances,
 		saveMessages,
 		getMessages,
-		clearMessages,
+		clear,
 	}
 })();
 
