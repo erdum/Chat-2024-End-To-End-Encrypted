@@ -1,46 +1,36 @@
 import { format } from "date-fns";
-import {
-  collection,
-  onSnapshot,
-  orderBy,
-  query,
-  where,
-} from "firebase/firestore";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useRef, useMemo } from "react";
 import { AuthContext } from "./context/AuthContext";
 import { db } from "./firebase";
 
+const formatTimestamp = (timestamp) => {
+  const date = new Date(timestamp);
+  const time = date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
+  return time;
+};
+
 const Chats = ({ selectedUser }) => {
-  const { currentUser } = useContext(AuthContext);
-  const [messages, setMessages] = useState([]);
+  const { currentUser, messages } = useContext(AuthContext);
   const chatRef = useRef(null);
-
-  useEffect(() => {
-    const chatsQuery = query(
-      collection(db, "chats"),
-      where("senderId", "in", [selectedUser.uid, currentUser.uid]),
-      where("receiverId", "in", [selectedUser.uid, currentUser.uid]),
-      orderBy("timestamp")
-    );
-
-    const unsubscribe = onSnapshot(chatsQuery, (snapshot) => {
-      const messages = snapshot.docs.map((doc) => doc.data());
-      setMessages(messages);
-    });
-    return () => unsubscribe();
-  }, [selectedUser, currentUser.uid]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
   const scrollToBottom = () => {
     chatRef.current?.scrollIntoView({ behavoir: "smooth" });
   };
 
+  const filteredMessages = useMemo(() => {
+    const selectedUserMessages = [];
+    messages.forEach(message => {
+
+      if (message.includes(selectedUser.uid) || message.includes(currentUser.uid)) {
+        selectedUserMessages.push(JSON.parse(message));
+      }
+    });
+    return selectedUserMessages;
+  }, [messages]);
+
   return (
     <div className="chats p-4 h-[calc(100vh-128px)] overflow-y-auto bg-slate-200">
-      {messages.map((message) => {
+      {filteredMessages.map((message) => {
         return (
           <div
             className={`relative flex ${
@@ -73,7 +63,7 @@ const Chats = ({ selectedUser }) => {
                           : "text-slate-400"
                       }`}
                     >
-                      {format(message.timestamp.toDate(), "HH:mm")}
+                      {formatTimestamp(message.timestamp)}
                     </p>
                   )}
                 </div>
@@ -95,7 +85,7 @@ const Chats = ({ selectedUser }) => {
                         : "text-slate-400"
                     }`}
                   >
-                    {format(message.timestamp.toDate(), "HH:mm")}
+                    {formatTimestamp(message.timestamp)}
                   </p>
                 )}
               </div>
