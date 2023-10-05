@@ -5,21 +5,9 @@ import { db } from "./firebase";
 import MainContent from "./MainContent";
 import Sidebar from "./Sidebar";
 
-const Home = () => {
+const Home = ({ users }) => {
   const { currentUser } = useContext(AuthContext);
-  const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-
-  useEffect(() => {
-    const getUsers = async () => {
-      const usersCollection = collection(db, "users");
-      const userSnapshot = await getDocs(usersCollection);
-      const usersData = userSnapshot.docs.map((doc) => doc.data());
-      setUsers(usersData);
-    };
-
-    getUsers();
-  }, []);
 
   const handleUserClick = (user) => {
     setSelectedUser(user);
