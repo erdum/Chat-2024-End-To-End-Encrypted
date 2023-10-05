@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import React, { useContext, useRef, useMemo } from "react";
+import React, { useContext, useRef, useMemo, useEffect } from "react";
 import { AuthContext } from "./context/AuthContext";
 import { db } from "./firebase";
 
@@ -27,6 +27,8 @@ const Chats = ({ selectedUser }) => {
     });
     return selectedUserMessages;
   }, [messages]);
+
+  useEffect(() => scrollToBottom(), [filteredMessages]);
 
   return (
     <div className="chats p-4 h-[calc(100vh-128px)] overflow-y-auto bg-slate-200">
