@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [exportedPublicKey, setExportedPublicKey] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [allMessages, setAllMessages] = useState([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
         const indexedDB = await IndexedDB.initialize();
         const seenMessages = await IndexedDB.getMessages(indexedDB, currentUser.uid);
 
-        setMessages([...seenMessages, ...unreadMessages]);
+        setAllMessages([...seenMessages, ...unreadMessages]);
 
         if (unreadMessages.length > 0) {
           await IndexedDB.saveMessages(indexedDB, unreadMessages, currentUser.uid);
@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }) => {
   }, [currentUser]);
 
   return (
-    <AuthContext.Provider value={{ currentUser, loading, messages }}>
+    <AuthContext.Provider value={{ currentUser, loading, allMessages }}>
       {children}
     </AuthContext.Provider>
   );
