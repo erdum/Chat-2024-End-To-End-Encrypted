@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import React, { useContext, useRef, useMemo, useEffect } from "react";
 import { AuthContext } from "./context/AuthContext";
+import { MessagesContext } from "./context/MessagesContext";
 import { db } from "./firebase";
 
 const formatTimestamp = (timestamp) => {
@@ -10,7 +11,8 @@ const formatTimestamp = (timestamp) => {
 };
 
 const Chats = ({ selectedUser }) => {
-  const { currentUser, messages } = useContext(AuthContext);
+  const { currentUser } = useContext(AuthContext);
+  const { messages } = useContext(MessagesContext);
   const chatRef = useRef(null);
 
   const scrollToBottom = () => {
