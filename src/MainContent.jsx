@@ -1,10 +1,13 @@
-import React from "react";
+import { useContext } from "react";
 import ChatPartnerHeader from "./ChatPartnerHeader";
 import Chats from "./Chats";
 import Input from "./Input";
 import Logo from "./Logo";
+import { MessagesContext } from "./context/MessagesContext";
 
-const MainContent = ({ selectedUser }) => {
+const MainContent = () => {
+  const { selectedUser } = useContext(MessagesContext);
+
   return (
     <>
       {selectedUser ? (

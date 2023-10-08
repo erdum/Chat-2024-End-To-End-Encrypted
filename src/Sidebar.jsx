@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import CurrentUserHeader from "./CurrentUserHeader";
 import Search from "./Search";
 import Users from "./Users";
+import { MessagesContext } from "./context/MessagesContext";
 
-const Sidebar = ({ users, onUserClick, selectedUser }) => {
+const Sidebar = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
+  const { setSelectedUser, selectedUser, users } = useContext(MessagesContext);
 
   const sortedUsers = [...users].sort((a, b) => {
     return a.displayName.localeCompare(b.displayName);
@@ -15,7 +17,7 @@ const Sidebar = ({ users, onUserClick, selectedUser }) => {
   );
 
   const handleUserClick = (user) => {
-    onUserClick(user);
+    setSelectedUser(user);
     setSearchKeyword("");
   };
 
