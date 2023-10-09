@@ -1,19 +1,69 @@
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
+import { AuthContext } from "./context/AuthContext";
+import { CryptoKeyContext } from "./context/CryptoKeyContext";
+import { db } from "./firebase";
+import { 
+  doc,
+  updateDoc,
+  arrayRemove,
+  onSnapshot,
+} from "firebase/firestore";
 import ChatPartnerHeader from "./ChatPartnerHeader";
 import Chats from "./Chats";
 import Input from "./Input";
 import Logo from "./Logo";
-import { MessagesContext } from "./context/MessagesContext";
+import IndexedDB from "./indexedDB";
+import Crypto from "./crypto";
 
-const MainContent = () => {
-  const { selectedUser } = useContext(MessagesContext);
+const MainContent = ({ selectedUser }) => {
+  const { currentUser } = useContext(AuthContext);
+  const { keyInstance } = useContext(CryptoKeyContext);
+  const [messages, setMessages] = useState([]);
+
+  const getSeenMessages = async (uid) => {
+    const seenMessages = await IndexedDB.getMessages(uid);
+    setMessages(seenMessages);
+  };
+
+  const getUnseenMessages = (uid, receiverPrivateKey) => {
+    return onSnapshot(doc(db, "users", uid), async (userDocSnap) => {
+      const unreadCiphers = userDocSnap.data().unreadCiphers ?? [];
+      const unreadMessages = await Crypto.decodeAllCiphers(
+        unreadCiphers,
+        receiverPrivateKey
+      );
+
+      if (unreadMessages.length > 0) {
+        setMessages(prevState => {
+          IndexedDB.saveMessages([...prevState, ...unreadMessages], uid);
+          return ([...prevState, ...unreadMessages]);
+        });
+        await updateDoc(doc(db, "users", uid), {
+          unreadCiphers: arrayRemove(...unreadCiphers)
+        });
+      }
+    });
+  };
+
+  useEffect(() => {
+    getSeenMessages(currentUser.uid);
+  }, []);
+
+  useEffect(() => {
+
+    if (!keyInstance) return;
+    const unsubMessagesListener = getUnseenMessages(
+      currentUser.uid, keyInstance.privateKey
+    );
+    return () => unsubMessagesListener();
+  }, [keyInstance]);
 
   return (
     <>
       {selectedUser ? (
         <div className="relative">
           <ChatPartnerHeader user={selectedUser} />
-          <Chats selectedUser={selectedUser} />
+          <Chats selectedUser={selectedUser} messages={messages} />
           <Input selectedUser={selectedUser} />
         </div>
       ) : (
