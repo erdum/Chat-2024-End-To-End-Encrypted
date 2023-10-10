@@ -1,4 +1,5 @@
-# De-centralized End-to-end encrypted Chat
+# D-Chat
+## A De-centralized End-to-end encrypted Chat application
 
 De-centralized Chat is a real-time end-to-end encrypted chat application built using React, Firebase, Material-UI, and Tailwind CSS. It allows users to chat with each other in real-time, providing a seamless, interactive and secure communication experience.
 
