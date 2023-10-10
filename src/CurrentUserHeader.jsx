@@ -16,7 +16,7 @@ const CurrentUserHeader = () => {
     <div className="relative h-16 bg-slate-100 border-b border-slate-200 flex justify-between items-center py-2 px-4">
       <div className="flex items-center gap-3">
         {currentUser.photoURL ? (
-          <Avatar src={currentUser.photoURL} />
+          <Avatar src={currentUser.photoURL} imgProps={{ referrerPolicy: "no-referrer" }} />
         ) : (
           <Avatar>{currentUser.displayName?.[0]}</Avatar>
         )}

@@ -22,7 +22,7 @@ const Users = ({ users, onUserClick, selectedUser }) => {
               onClick={() => onUserClick(user)}
             >
               {user.photoURL ? (
-                <Avatar src={user.photoURL} />
+                <Avatar src={user.photoURL} imgProps={{ referrerPolicy: "no-referrer" }} />
               ) : (
                 <Avatar>{user.displayName?.[0]}</Avatar>
               )}
