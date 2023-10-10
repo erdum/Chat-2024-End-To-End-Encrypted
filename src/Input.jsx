@@ -30,36 +30,39 @@ const Input = ({ selectedUser, addSentMessageToMessages }) => {
   }, []);
 
   const handleImageChange = (e) => {
-    // const file = e.target.files[0];
-    // if (file) {
-    //   const reader = new FileReader();
-    //   reader.onloadend = () => {
-    //     setImagePreview(reader.result);
-    //   };
-    //   reader.readAsDataURL(file);
-    // } else {
-    //   setImagePreview(null);
-    // }
+    const file = e.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
   };
 
   const sendMessage = async (e) => {
     setMessage("");
     if (message.trim() !== "" || imagePreview) {
       try {
-        // let imageBase64 = null;
-        // let imageMetaData = null;
+        let imageBase64 = null;
+        let imageMIME = null;
 
-        // if (imagePreview) {
-        //   setUploading(true);
-        //   const [metaData, image] = imagePreview.split(',');
-        //   imageMetaData = metaData;
-        //   imageBase64 = image;
-        //   setUploading(false);
-        //   setImagePreview(null);
-        // }
+        if (imagePreview) {
+          setUploading(true);
+          const [metaData, image] = imagePreview.split(',');
+          imageMIME = metaData.split(':')[1].split(';')[0].split('/')[1];
+          imageBase64 = image;
+          setUploading(false);
+          setImagePreview(null);
+        }
         const payload = {
           senderId: currentUser.uid,
           message,
+          image: imageBase64,
+          imageMIMEType: imageMIME,
           timestamp: Date.now(),
         };
         const stringifiedJson = JSON.stringify(payload);
