@@ -2,7 +2,7 @@ import React, { useState, useContext, useRef, useEffect } from "react";
 import SendIcon from "@mui/icons-material/Send";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
-import { updateDoc, doc, arrayUnion } from "firebase/firestore";
+import { updateDoc, doc, arrayUnion, onSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
 import Loader from "./assets/oval.svg";
 import Crypto from "./crypto";
@@ -12,8 +12,17 @@ const Input = ({ selectedUser }) => {
   const [message, setMessage] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [selectedUserPublicKey, setSelectedUserPublicKey] = useState(null);
   const { currentUser } = useContext(AuthContext);
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    const unsub = onSnapshot(
+      doc(db, "users", selectedUser.uid), 
+      userDoc => setSelectedUserPublicKey(userDoc.data().publicKey)
+    );
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     inputRef.current.focus();
@@ -52,7 +61,7 @@ const Input = ({ selectedUser }) => {
           message,
           timestamp: Date.now(),
         };
-        const cipher = await Crypto.encodeCipher(JSON.stringify(payload), selectedUser.publicKey);
+        const cipher = await Crypto.encodeCipher(JSON.stringify(payload), selectedUserPublicKey);
         
         const userDocRef = doc(db, "users", selectedUser.uid);
         await updateDoc(userDocRef, {
