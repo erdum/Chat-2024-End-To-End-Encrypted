@@ -13,29 +13,13 @@ import {
 import { db } from "./firebase";
 import { AuthContext } from "./context/AuthContext";
 
-const ChatPartnerHeader = ({ user }) => {
+const ChatPartnerHeader = ({ user, clearMessages }) => {
   const { currentUser } = useContext(AuthContext);
   const [toggleMore, setToggleMore] = useState(false);
 
   const handleClearMessages = async () => {
-    try {
-      const messagesQuery = query(
-        collectionGroup(db, "chats"),
-        where("senderId", "in", [user.uid, currentUser.uid]),
-        where("receiverId", "in", [user.uid, currentUser.uid])
-      );
-
-      const messagesSnapshot = await getDocs(messagesQuery);
-
-      const deletePromises = messagesSnapshot.docs.map((doc) =>
-        deleteDoc(doc.ref)
-      );
-
-      await Promise.all(deletePromises);
-      setToggleMore(false);
-    } catch (error) {
-      console.error("Error clearing messages:", error);
-    }
+    clearMessages();
+    setToggleMore(false);
   };
 
   return (

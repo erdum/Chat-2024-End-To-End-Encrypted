@@ -75,12 +75,19 @@ const IndexedDB = (() => {
     db.close();
   };
 
+  const clearOnlyMessages = async () => {
+    const db = await initialize();
+    clearMessages(db);
+    db.close();
+  }
+
   return {
     initialize,
     getKeyInstance,
     saveKeyInstance,
     saveMessages,
     getMessages,
+    clearOnlyMessages,
     clear,
   }
 })();

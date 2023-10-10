@@ -62,7 +62,15 @@ const MainContent = ({ selectedUser }) => {
     <>
       {selectedUser ? (
         <div className="relative">
-          <ChatPartnerHeader user={selectedUser} />
+          <ChatPartnerHeader
+            user={selectedUser}
+            clearMessages={
+              async () => {
+                setMessages([]);
+                await IndexedDB.clearOnlyMessages();
+              }
+            }
+          />
           <Chats selectedUser={selectedUser} messages={messages} />
           <Input selectedUser={selectedUser} addSentMessageToMessages={setMessages} />
         </div>
