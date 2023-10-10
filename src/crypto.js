@@ -36,10 +36,14 @@ const Crypto = (() => {
   // cipher: base64
   // return: string
   const decodeCipher = async (cipher, receiverPrivateKey) => {
-    const decodedCipher = await window.crypto.subtle.decrypt({
-      name: "RSA-OAEP"
-    }, receiverPrivateKey, base64ToArrayBuffer(cipher));
-    return new TextDecoder().decode(decodedCipher);
+    try {
+      const decodedCipher = await window.crypto.subtle.decrypt({
+        name: "RSA-OAEP"
+      }, receiverPrivateKey, base64ToArrayBuffer(cipher));
+      return new TextDecoder().decode(decodedCipher);
+    } catch {
+      throw new Error("Failed to decrypt cipher, invalid key");
+    }
   };
 
   // ciphers: array[base64]
@@ -47,7 +51,8 @@ const Crypto = (() => {
   const decodeAllCiphers = async (ciphers, receiverPrivateKey) => {
     const promises = [];
     ciphers.forEach(cipher => promises.push(decodeCipher(cipher, receiverPrivateKey)));
-    return Promise.all(promises);
+    const results = await Promise.all(promises.map(p => p.catch(e => e)));
+    return results.filter(result => !(result instanceof Error));
   };
 
   const arrayBufferToBase64 = (buffer) => {

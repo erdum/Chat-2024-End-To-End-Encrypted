@@ -51,6 +51,9 @@ const MainContent = ({ selectedUser }) => {
           IndexedDB.saveMessages([...prevState, ...unreadMessages], uid);
           return ([...prevState, ...unreadMessages]);
         });
+      }
+
+      if (unreadCiphers.length > 0) {
         await updateDoc(doc(db, "users", uid), {
           unreadCiphers: arrayRemove(...unreadCiphers)
         });
