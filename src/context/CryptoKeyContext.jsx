@@ -8,8 +8,16 @@ import Crypto from "../crypto";
 export const CryptoKeyContext = createContext();
 
 export const CryptoKeyProvider = ({ children }) => {
-  const { currentUser } = useContext(AuthContext);
   const [keyInstance, setKeyInstance] = useState(null);
+  const { currentUser } = useContext(AuthContext);
+
+  useEffect(() => {
+
+    if (!currentUser) return;
+    (async () => {
+      getOrGenerateKeyInstance(currentUser.uid);
+    })();
+  }, [currentUser]);
 
   const getOrGenerateKeyInstance = async (uid) => {
     const localKeyInstance = await IndexedDB.getKeyInstance(uid);
@@ -40,14 +48,6 @@ export const CryptoKeyProvider = ({ children }) => {
       setKeyInstance(localKeyInstance);
     }
   };
-
-  useEffect(() => {
-
-    if (!currentUser) return;
-    (async () => {
-      getOrGenerateKeyInstance(currentUser.uid);
-    })();
-  }, [currentUser]);
 
   return (
     <CryptoKeyContext.Provider value={{ keyInstance }}>

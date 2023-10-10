@@ -9,8 +9,9 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
 
 const CurrentUserHeader = () => {
-  const { currentUser } = useContext(AuthContext);
   const [toggleMore, setToggleMore] = useState(false);
+  const { currentUser } = useContext(AuthContext);
+  
   return (
     <div className="relative h-16 bg-slate-100 border-b border-slate-200 flex justify-between items-center py-2 px-4">
       <div className="flex items-center gap-3">

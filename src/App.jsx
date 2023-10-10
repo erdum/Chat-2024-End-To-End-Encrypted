@@ -30,19 +30,19 @@ const App = () => {
     getUsers();
   }, [currentUser]);
 
-  const getUsers = async () => {
-    const usersSnapshot = await getDocs(collection(db, "users"));
-    const users = [];
-    usersSnapshot.docs.forEach(userDoc => users.push(userDoc.data()));
-    setUsers(users);
-  };
-
   useEffect(() => {
 
     if (!isUserLoading && !currentUser) {
       (async () => IndexedDB.clear())();
     }
   }, [isUserLoading]);
+
+  const getUsers = async () => {
+    const usersSnapshot = await getDocs(collection(db, "users"));
+    const users = [];
+    usersSnapshot.docs.forEach(userDoc => users.push(userDoc.data()));
+    setUsers(users);
+  };
 
   const ProtectedRoute = ({ children }) => {
     if (!currentUser) {
@@ -51,11 +51,7 @@ const App = () => {
     return children;
   };
 
-  const isAppLoading = useMemo(() => {
-    return (
-      isUserLoading || currentUser && (users.length === 0 || !keyInstance)
-    );
-  }, [isUserLoading, users, keyInstance]);
+  const isAppLoading = isUserLoading || currentUser && (users.length === 0 || !keyInstance);
 
   if (isAppLoading) {
     return (

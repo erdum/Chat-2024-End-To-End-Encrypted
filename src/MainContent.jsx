@@ -16,9 +16,22 @@ import IndexedDB from "./indexedDB";
 import Crypto from "./crypto";
 
 const MainContent = ({ selectedUser }) => {
+  const [messages, setMessages] = useState([]);
   const { currentUser } = useContext(AuthContext);
   const { keyInstance } = useContext(CryptoKeyContext);
-  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    getSeenMessages(currentUser.uid);
+  }, []);
+
+  useEffect(() => {
+
+    if (!keyInstance) return;
+    const unsubMessagesListener = getUnseenMessages(
+      currentUser.uid, keyInstance.privateKey
+    );
+    return () => unsubMessagesListener();
+  }, [keyInstance]);
 
   const getSeenMessages = async (uid) => {
     const seenMessages = await IndexedDB.getMessages(uid);
@@ -44,19 +57,6 @@ const MainContent = ({ selectedUser }) => {
       }
     });
   };
-
-  useEffect(() => {
-    getSeenMessages(currentUser.uid);
-  }, []);
-
-  useEffect(() => {
-
-    if (!keyInstance) return;
-    const unsubMessagesListener = getUnseenMessages(
-      currentUser.uid, keyInstance.privateKey
-    );
-    return () => unsubMessagesListener();
-  }, [keyInstance]);
 
   return (
     <>

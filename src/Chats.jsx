@@ -13,9 +13,7 @@ const Chats = ({ selectedUser, messages }) => {
   const { currentUser } = useContext(AuthContext);
   const chatRef = useRef(null);
 
-  const scrollToBottom = () => {
-    chatRef.current?.scrollIntoView({ behavoir: "smooth" });
-  };
+  useEffect(() => scrollToBottom(), [filteredMessages]);
 
   const filteredMessages = useMemo(() => {
     const selectedUserMessages = [];
@@ -28,7 +26,9 @@ const Chats = ({ selectedUser, messages }) => {
     return selectedUserMessages;
   }, [messages]);
 
-  useEffect(() => scrollToBottom(), [filteredMessages]);
+  const scrollToBottom = () => {
+    chatRef.current?.scrollIntoView({ behavoir: "smooth" });
+  };
 
   return (
     <div className="chats p-4 h-[calc(100vh-128px)] overflow-y-auto bg-slate-200">
