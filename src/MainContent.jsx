@@ -64,7 +64,7 @@ const MainContent = ({ selectedUser }) => {
         <div className="relative">
           <ChatPartnerHeader user={selectedUser} />
           <Chats selectedUser={selectedUser} messages={messages} />
-          <Input selectedUser={selectedUser} />
+          <Input selectedUser={selectedUser} addSentMessageToMessages={setMessages} />
         </div>
       ) : (
         <div className="bg-slate-200 h-full flex justify-center items-center text-center flex-col">

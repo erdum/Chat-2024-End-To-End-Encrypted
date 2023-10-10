@@ -6,9 +6,10 @@ import { updateDoc, doc, arrayUnion, onSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
 import Loader from "./assets/oval.svg";
 import Crypto from "./crypto";
+import IndexedDB from "./indexedDB";
 import { AuthContext } from "./context/AuthContext";
 
-const Input = ({ selectedUser }) => {
+const Input = ({ selectedUser, addSentMessageToMessages }) => {
   const [message, setMessage] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -61,7 +62,12 @@ const Input = ({ selectedUser }) => {
           message,
           timestamp: Date.now(),
         };
-        const cipher = await Crypto.encodeCipher(JSON.stringify(payload), selectedUserPublicKey);
+        const stringifiedJson = JSON.stringify(payload);
+        addSentMessageToMessages(prevMessages => {
+          IndexedDB.saveMessages([...prevMessages, stringifiedJson], currentUser.uid);
+          return ([...prevMessages, stringifiedJson]);
+        });
+        const cipher = await Crypto.encodeCipher(stringifiedJson, selectedUserPublicKey);
         
         const userDocRef = doc(db, "users", selectedUser.uid);
         await updateDoc(userDocRef, {
