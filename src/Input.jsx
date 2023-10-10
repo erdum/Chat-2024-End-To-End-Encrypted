@@ -92,12 +92,12 @@ const Input = ({ selectedUser, addSentMessageToMessages }) => {
 
   return (
     <div className="bg-slate-100 h-16 border-t border-slate-200 flex items-center px-8 gap-4">
-      <label htmlFor="file">
+      {/*<label htmlFor="file">
         <AttachFileIcon
           className="text-gray-600 w-200 text-4xl rotate-45 cursor-pointer"
           style={{ fontSize: 28 }}
         />
-      </label>
+      </label>*/}
       <input
         type="file"
         id="file"
