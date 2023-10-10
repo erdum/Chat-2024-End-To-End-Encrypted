@@ -17,7 +17,6 @@ import loader from "./assets/puff.svg";
 import Signin from "./Signin";
 import Signup from "./Signup";
 import Home from "./Home";
-import IndexedDB from "./indexedDB";
 
 const App = () => {
   const { currentUser, isUserLoading } = useContext(AuthContext);
@@ -29,13 +28,6 @@ const App = () => {
     if (!currentUser) return;
     getUsers();
   }, [currentUser]);
-
-  useEffect(() => {
-
-    if (!isUserLoading && !currentUser) {
-      (async () => IndexedDB.clear())();
-    }
-  }, [isUserLoading]);
 
   const getUsers = async () => {
     const usersSnapshot = await getDocs(collection(db, "users"));
