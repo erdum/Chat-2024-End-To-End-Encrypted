@@ -33,8 +33,8 @@ const ChatPartnerHeader = ({ user, clearMessages }) => {
         <h4 className="font-semibold">{user.displayName}</h4>
       </div>
       <div className="flex items-center gap-8">
-        <PhoneIcon className="text-gray-600" />
-        <VideocamIcon className="text-gray-600" />
+{/*        <PhoneIcon className="text-gray-600" />
+        <VideocamIcon className="text-gray-600" />*/}
         <div>
           <div
             className={`cursor-pointer p-2 ${
