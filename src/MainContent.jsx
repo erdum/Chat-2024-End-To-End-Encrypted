@@ -16,44 +16,46 @@ import IndexedDB from "./indexedDB";
 import Crypto from "./crypto";
 
 const MainContent = ({ selectedUser }) => {
-  const [messages, setMessages] = useState([]);
+  const [ciphers, setCiphers] = useState([]);
+  const [selectedUserPublicKey, setSelectedUserPublicKey] = useState(null);
   const { currentUser } = useContext(AuthContext);
   const { keyInstance } = useContext(CryptoKeyContext);
 
   useEffect(() => {
-    getSeenMessages(currentUser.uid);
+    (async () => {
+      const ciphersFromDevice = await IndexedDB.getMessages(currentUser.uid);
+      setCiphers(ciphersFromDevice);
+    })();
   }, []);
 
   useEffect(() => {
 
     if (!keyInstance) return;
-    const unsubMessagesListener = getUnseenMessages(
+    const unsubCipherListener = getRemoteCiphers(
       currentUser.uid, keyInstance.privateKey
     );
-    return () => unsubMessagesListener();
+    return () => unsubCipherListener();
   }, [keyInstance]);
 
-  const getSeenMessages = async (uid) => {
-    const seenMessages = await IndexedDB.getMessages(uid);
-    setMessages(seenMessages);
-  };
+  useEffect(() => {
 
-  const getUnseenMessages = (uid, receiverPrivateKey) => {
+    if (!selectedUser) return;
+    const unsub = onSnapshot(
+      doc(db, "users", selectedUser.uid), 
+      userDoc => setSelectedUserPublicKey(userDoc.data().publicKey)
+    );
+    return () => unsub();
+  }, [selectedUser]);
+
+  const getRemoteCiphers = (uid, receiverPrivateKey, senderPublicKey) => {
     return onSnapshot(doc(db, "users", uid), async (userDocSnap) => {
       const unreadCiphers = userDocSnap.data().unreadCiphers ?? [];
-      const unreadMessages = await Crypto.decodeAllCiphers(
-        unreadCiphers,
-        receiverPrivateKey
-      );
-
-      if (unreadMessages.length > 0) {
-        setMessages(prevState => {
-          IndexedDB.saveMessages([...prevState, ...unreadMessages], uid);
-          return ([...prevState, ...unreadMessages]);
-        });
-      }
 
       if (unreadCiphers.length > 0) {
+        setCiphers(prevState => {
+          IndexedDB.saveMessages([...prevState, ...unreadCiphers], uid);
+          return ([...prevState, ...unreadCiphers]);
+        });
         await updateDoc(doc(db, "users", uid), {
           unreadCiphers: arrayRemove(...unreadCiphers)
         });
@@ -69,13 +71,17 @@ const MainContent = ({ selectedUser }) => {
             user={selectedUser}
             clearMessages={
               async () => {
-                setMessages([]);
+                setCiphers([]);
                 await IndexedDB.clearOnlyMessages();
               }
             }
           />
-          <Chats selectedUser={selectedUser} messages={messages} />
-          <Input selectedUser={selectedUser} addSentMessageToMessages={setMessages} />
+          <Chats selectedUser={selectedUser} ciphers={ciphers} />
+          <Input
+            selectedUser={selectedUser}
+            selectedUserPublicKey={selectedUserPublicKey}
+            addSentMessageToMessages={setCiphers}
+          />
         </div>
       ) : (
         <div className="bg-slate-200 h-full flex justify-center items-center text-center flex-col">
