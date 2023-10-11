@@ -9,48 +9,86 @@ const Crypto = (() => {
   const generateKeyPairInstance = async () => {
     const newKeyPairInstance = await window.crypto.subtle.generateKey(
       {
-        name: "RSA-OAEP",
-        modulusLength: 4096,
-        publicExponent: new Uint8Array([1, 0, 1]),
-        hash: "SHA-256"
+        name: "ECDH",
+        namedCurve: "P-384",
       },
       false,
-      ["decrypt", "encrypt"]
+      ["deriveKey"]
     );
     return newKeyPairInstance;
   };
 
-  // data: string, receiverPublicKey: asymmetric public-key in (jwk) format
+  // data: string, receiverPublicKey: asymmetric public-key in (jwk) format, senderPrivateKey: CryptoKey
   // return: base64
-  const encodeCipher = async (data, receiverPublicKey) => {
-    const key = await window.crypto.subtle.importKey('jwk', receiverPublicKey, {
-      name: "RSA-OAEP",
-      hash: "SHA-256"
-    }, true, ['encrypt']);
-    const cipherBytesArray = await window.crypto.subtle.encrypt({
-      name: "RSA-OAEP"
-    }, key, new TextEncoder().encode(data));
-    return arrayBufferToBase64(cipherBytesArray);
+  const encodeCipher = async (data, receiverPublicKey, senderPrivateKey) => {
+    const publicKey = await window.crypto.subtle.importKey('jwk', receiverPublicKey, {
+      name: "ECDH",
+      namedCurve: "P-384",
+    }, true, []);
+    const secretKey = await window.crypto.subtle.deriveKey(
+      {
+        name: "ECDH",
+        public: publicKey,
+      },
+      senderPrivateKey,
+      {
+        name: "AES-GCM",
+        length: 256,
+      },
+      false,
+      ["encrypt"]
+    );
+    const initializationVector = window.crypto.getRandomValues(new Uint8Array(96));
+    const cipherBytesArray = await window.crypto.subtle.encrypt(
+    { name: "AES-GCM", iv: initializationVector },
+    secretKey,
+    new TextEncoder().encode(data));
+    return arrayBufferToBase64(initializationVector) + "\n" + arrayBufferToBase64(cipherBytesArray);
   };
 
-  // cipher: base64
+  // data: base64, receiverPrivateKey: CryptoKey, senderPublicKey: asymmetric public-key in (jwk) format
   // return: string
-  const decodeCipher = async (cipher, receiverPrivateKey) => {
+  const decodeCipher = async (data, receiverPrivateKey, senderPublicKey) => {
     try {
-      const decodedCipher = await window.crypto.subtle.decrypt({
-        name: "RSA-OAEP"
-      }, receiverPrivateKey, base64ToArrayBuffer(cipher));
+      const dataComps = data.split("\n");
+      const initializationVector = base64ToArrayBuffer(dataComps[0]);
+      const cipherText = dataComps[1];
+      const publicKey = await window.crypto.subtle.importKey('jwk', senderPublicKey, {
+        name: "ECDH",
+        namedCurve: "P-384",
+      }, true, []);
+      const agreedKey = await window.crypto.subtle.deriveKey(
+        {
+          name: "ECDH",
+          public: publicKey,
+        },
+        receiverPrivateKey,
+        {
+          name: "AES-GCM",
+          length: 256,
+        },
+        false,
+        ["decrypt"]
+      );
+      const decodedCipher = await window.crypto.subtle.decrypt(
+        {
+          name: "AES-GCM",
+          iv: initializationVector
+        },
+        agreedKey,
+        base64ToArrayBuffer(cipherText)
+      );
       return new TextDecoder().decode(decodedCipher);
     } catch {
       throw new Error("Failed to decrypt cipher, invalid key");
     }
   };
 
-  // ciphers: array[base64]
+  // data: array[base64], receiverPrivateKey: CryptoKey, senderPublicKey: asymmetric public-key in (jwk) format
   // return: array[string]
-  const decodeAllCiphers = async (ciphers, receiverPrivateKey) => {
+  const decodeAllCiphers = async (ciphers, receiverPrivateKey, senderPublicKey) => {
     const promises = [];
-    ciphers.forEach(cipher => promises.push(decodeCipher(cipher, receiverPrivateKey)));
+    ciphers.forEach(data => promises.push(decodeCipher(data, receiverPrivateKey, senderPublicKey)));
     const results = await Promise.all(promises.map(p => p.catch(e => e)));
     return results.filter(result => !(result instanceof Error));
   };
