@@ -11,7 +11,7 @@ const formatTimestamp = (timestamp) => {
   return time;
 };
 
-const Chats = ({ selectedUser, selectedUserPublicKey, messages }) => {
+const Chats = ({ selectedUser, messages }) => {
   const { currentUser } = useContext(AuthContext);
   const { keyInstance } = useContext(CryptoKeyContext);
   const chatRef = useRef(null);
@@ -29,7 +29,7 @@ const Chats = ({ selectedUser, selectedUserPublicKey, messages }) => {
         )
       );
     }),
-    [messages]
+    [messages, selectedUser]
   );
 
   useEffect(() => scrollToBottom(), [filteredMessages]);
