@@ -1,7 +1,9 @@
 import { format } from "date-fns";
 import React, { useContext, useRef, useMemo, useEffect } from "react";
 import { AuthContext } from "./context/AuthContext";
+import { CryptoKeyContext } from "./context/CryptoKeyContext";
 import { db } from "./firebase";
+import Crypto from "./crypto";
 
 const formatTimestamp = (timestamp) => {
   const date = new Date(timestamp);
@@ -9,20 +11,26 @@ const formatTimestamp = (timestamp) => {
   return time;
 };
 
-const Chats = ({ selectedUser, messages }) => {
+const Chats = ({ selectedUser, selectedUserPublicKey, messages }) => {
   const { currentUser } = useContext(AuthContext);
+  const { keyInstance } = useContext(CryptoKeyContext);
   const chatRef = useRef(null);
 
-  const filteredMessages = useMemo(() => {
-    const selectedUserMessages = [];
-    messages.forEach(message => {
-
-      if (message.includes(selectedUser.uid) || message.includes(currentUser.uid)) {
-        selectedUserMessages.push(JSON.parse(message));
-      }
-    });
-    return selectedUserMessages;
-  }, [messages]);
+  const filteredMessages = useMemo(
+    () => messages.filter(message => {
+      return (
+        (
+          message.receiverId == currentUser.uid
+          && message.senderId == selectedUser.uid
+        )
+        || (
+          message.receiverId == selectedUser.uid
+          && message.senderId == currentUser.uid
+        )
+      );
+    }),
+    [messages]
+  );
 
   useEffect(() => scrollToBottom(), [filteredMessages]);
 

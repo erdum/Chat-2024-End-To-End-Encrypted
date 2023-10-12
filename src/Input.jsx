@@ -8,22 +8,14 @@ import Loader from "./assets/oval.svg";
 import Crypto from "./crypto";
 import IndexedDB from "./indexedDB";
 import { AuthContext } from "./context/AuthContext";
+import { CryptoKeyContext } from "./context/CryptoKeyContext";
 
-const Input = ({ selectedUser, addSentMessageToMessages }) => {
+const Input = ({ selectedUser, selectedUserPublicKey, addMessage }) => {
   const [message, setMessage] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [selectedUserPublicKey, setSelectedUserPublicKey] = useState(null);
   const { currentUser } = useContext(AuthContext);
+  const { keyInstance } = useContext(CryptoKeyContext);
   const inputRef = useRef(null);
-
-  useEffect(() => {
-    const unsub = onSnapshot(
-      doc(db, "users", selectedUser.uid), 
-      userDoc => setSelectedUserPublicKey(userDoc.data().publicKey)
-    );
-    return () => unsub();
-  }, []);
 
   useEffect(() => {
     inputRef.current.focus();
@@ -47,38 +39,34 @@ const Input = ({ selectedUser, addSentMessageToMessages }) => {
     setMessage("");
     if (message.trim() !== "" || imagePreview) {
       try {
-        let imageBase64 = null;
-        let imageMIME = null;
 
         if (imagePreview) {
-          setUploading(true);
-          const [metaData, image] = imagePreview.split(',');
-          imageMIME = metaData.split(':')[1].split(';')[0].split('/')[1];
-          imageBase64 = image;
-          setUploading(false);
           setImagePreview(null);
         }
         const payload = {
           senderId: currentUser.uid,
+          receiverId: selectedUser.uid,
           message,
-          image: imageBase64,
-          imageMIMEType: imageMIME,
+          imageUrl: imagePreview,
           timestamp: Date.now(),
         };
-        const stringifiedJson = JSON.stringify(payload);
-        addSentMessageToMessages(prevMessages => {
-          IndexedDB.saveMessages([...prevMessages, stringifiedJson], currentUser.uid);
-          return ([...prevMessages, stringifiedJson]);
+        const [cipher, initalizationVector] = await Crypto.encodeCipher(
+          JSON.stringify(payload),
+          selectedUserPublicKey,
+          keyInstance.privateKey
+        );
+        const data = cipher + "----" + initalizationVector;
+        addMessage(prevMessages => {
+          IndexedDB.saveMessages([...prevMessages, payload], currentUser.uid);
+          return ([...prevMessages, payload]);
         });
-        const cipher = await Crypto.encodeCipher(stringifiedJson, selectedUserPublicKey);
         
         const userDocRef = doc(db, "users", selectedUser.uid);
         await updateDoc(userDocRef, {
-          unreadCiphers: arrayUnion(cipher)
+          unreadCiphers: arrayUnion(data)
         });
       } catch (error) {
         console.log(error);
-        setUploading(false);
       }
     }
   };
@@ -126,7 +114,6 @@ const Input = ({ selectedUser, addSentMessageToMessages }) => {
         />
         {imagePreview && (
           <div className="absolute bottom-16 left-0 right-0 top-16 border-4 border-slate-400 border-dashed flex justify-center items-center bg-slate-200">
-            {uploading && <img src={Loader} className="absolute w-20" />}
             <img
               src={imagePreview}
               alt="Preview"
