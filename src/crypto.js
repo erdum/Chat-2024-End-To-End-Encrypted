@@ -19,7 +19,7 @@ const Crypto = (() => {
   };
 
   // data: string, receiverPublicKey: asymmetric public-key in (jwk) format, senderPrivateKey: CryptoKey
-  // return: base64
+  // return: string
   const encodeCipher = async (data, receiverPublicKey, senderPrivateKey) => {
     const publicKey = await window.crypto.subtle.importKey('jwk', receiverPublicKey, {
       name: "ECDH",
@@ -35,29 +35,27 @@ const Crypto = (() => {
         name: "AES-GCM",
         length: 256,
       },
-      false,
+      true,
       ["encrypt"]
     );
     const initializationVector = window.crypto.getRandomValues(new Uint8Array(96));
     const cipherBytesArray = await window.crypto.subtle.encrypt(
-    { name: "AES-GCM", iv: initializationVector },
-    secretKey,
-    new TextEncoder().encode(data));
-    return arrayBufferToBase64(initializationVector) + "\n" + arrayBufferToBase64(cipherBytesArray);
+      { name: "AES-GCM", iv: initializationVector },
+      secretKey,
+      new TextEncoder().encode(data)
+    );
+    return arrayBufferToBase64(cipherBytesArray) + "----" + arrayBufferToBase64(initializationVector);
   };
 
   // data: base64, receiverPrivateKey: CryptoKey, senderPublicKey: asymmetric public-key in (jwk) format
   // return: string
-  const decodeCipher = async (data, receiverPrivateKey, senderPublicKey) => {
+  const decodeCipher = async (cipher, initializationVector, receiverPrivateKey, senderPublicKey) => {
     try {
-      const dataComps = data.split("\n");
-      const initializationVector = base64ToArrayBuffer(dataComps[0]);
-      const cipherText = dataComps[1];
       const publicKey = await window.crypto.subtle.importKey('jwk', senderPublicKey, {
         name: "ECDH",
         namedCurve: "P-384",
       }, true, []);
-      const agreedKey = await window.crypto.subtle.deriveKey(
+      const secretKey = await window.crypto.subtle.deriveKey(
         {
           name: "ECDH",
           public: publicKey,
@@ -67,20 +65,20 @@ const Crypto = (() => {
           name: "AES-GCM",
           length: 256,
         },
-        false,
+        true,
         ["decrypt"]
       );
       const decodedCipher = await window.crypto.subtle.decrypt(
         {
           name: "AES-GCM",
-          iv: initializationVector
+          iv: base64ToArrayBuffer(initializationVector)
         },
-        agreedKey,
-        base64ToArrayBuffer(cipherText)
+        secretKey,
+        base64ToArrayBuffer(cipher)
       );
       return new TextDecoder().decode(decodedCipher);
-    } catch {
-      throw new Error("Failed to decrypt cipher, invalid key");
+    } catch (error) {
+      throw new Error("Failed to decrypt cipher, error: " + error);
     }
   };
 
@@ -88,7 +86,12 @@ const Crypto = (() => {
   // return: array[string]
   const decodeAllCiphers = async (ciphers, receiverPrivateKey, senderPublicKey) => {
     const promises = [];
-    ciphers.forEach(data => promises.push(decodeCipher(data, receiverPrivateKey, senderPublicKey)));
+    ciphers.forEach(data => {
+      const parts = data.split("----");
+      const cipher = parts[0];
+      const iv = parts[1];
+      promises.push(decodeCipher(cipher, iv, receiverPrivateKey, senderPublicKey))
+    });
     const results = await Promise.all(promises.map(p => p.catch(e => e)));
     return results.filter(result => !(result instanceof Error));
   };
@@ -117,7 +120,6 @@ const Crypto = (() => {
     generateKeyPairInstance,
     exportPublicKey,
     encodeCipher,
-    decodeCipher,
     decodeAllCiphers,
   };
 })();

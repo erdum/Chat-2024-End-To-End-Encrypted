@@ -50,12 +50,11 @@ const Input = ({ selectedUser, selectedUserPublicKey, addMessage }) => {
           imageUrl: imagePreview,
           timestamp: Date.now(),
         };
-        const [cipher, initalizationVector] = await Crypto.encodeCipher(
+        const data = await Crypto.encodeCipher(
           JSON.stringify(payload),
           selectedUserPublicKey,
           keyInstance.privateKey
         );
-        const data = cipher + "----" + initalizationVector;
         addMessage(prevMessages => {
           IndexedDB.saveMessages([...prevMessages, payload], currentUser.uid);
           return ([...prevMessages, payload]);
