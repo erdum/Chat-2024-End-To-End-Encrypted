@@ -1,9 +1,5 @@
-import { format } from "date-fns";
-import React, { useContext, useRef, useMemo, useEffect } from "react";
+import { useContext, useRef, useMemo, useEffect } from "react";
 import { AuthContext } from "./context/AuthContext";
-import { CryptoKeyContext } from "./context/CryptoKeyContext";
-import { db } from "./firebase";
-import Crypto from "./crypto";
 
 const formatTimestamp = (timestamp) => {
   const date = new Date(timestamp);
@@ -13,7 +9,6 @@ const formatTimestamp = (timestamp) => {
 
 const Chats = ({ selectedUser, messages }) => {
   const { currentUser } = useContext(AuthContext);
-  const { keyInstance } = useContext(CryptoKeyContext);
   const chatRef = useRef(null);
 
   const filteredMessages = useMemo(

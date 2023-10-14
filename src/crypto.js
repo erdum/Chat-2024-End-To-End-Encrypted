@@ -93,16 +93,15 @@ const Crypto = (() => {
       promises.push(decodeCipher(cipher, iv, receiverPrivateKey, senderPublicKey))
     });
     const results = await Promise.all(promises.map(p => p.catch(e => e)));
-    const successfulCiphers = [];
+    const usuccessfulCiphers = [];
     const decodedCiphers = results.filter((result, index) => {
 
-      if (!(result instanceof Error)) {
-        successfulCiphers.push(ciphers[index]);
-        return true;
-      }
-      return false;
+      if (result instanceof Error) return false;
+      
+      usuccessfulCiphers.push(ciphers[index]);
+      return true;
     });
-    return [decodedCiphers, successfulCiphers];
+    return [decodedCiphers, usuccessfulCiphers];
   };
 
   const arrayBufferToBase64 = (buffer) => {

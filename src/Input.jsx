@@ -8,13 +8,14 @@ import Loader from "./assets/oval.svg";
 import Crypto from "./crypto";
 import IndexedDB from "./indexedDB";
 import { AuthContext } from "./context/AuthContext";
+import { DatabaseContext } from "./context/DatabaseContext";
 import { CryptoKeyContext } from "./context/CryptoKeyContext";
 
-const Input = ({ selectedUser, selectedUserPublicKey, addMessage }) => {
+const Input = ({ selectedUser, setMessages }) => {
   const [message, setMessage] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const { currentUser } = useContext(AuthContext);
-  const { keyInstance } = useContext(CryptoKeyContext);
+  const { sendCipher } = useContext(DatabaseContext);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -50,20 +51,15 @@ const Input = ({ selectedUser, selectedUserPublicKey, addMessage }) => {
           imageUrl: imagePreview,
           timestamp: Date.now(),
         };
-        const data = await Crypto.encodeCipher(
-          JSON.stringify(payload),
-          selectedUserPublicKey,
-          keyInstance.privateKey
-        );
-        addMessage(prevMessages => {
+        setMessages(prevMessages => {
           IndexedDB.saveMessages([...prevMessages, payload], currentUser.uid);
-          return ([...prevMessages, payload]);
+          return [...prevMessages, payload];
         });
-        
-        const userDocRef = doc(db, "users", selectedUser.uid);
-        await updateDoc(userDocRef, {
-          unreadCiphers: arrayUnion(data)
-        });
+        sendCipher(
+          currentUser.uid,
+          selectedUser.uid,
+          payload
+        );
       } catch (error) {
         console.log(error);
       }

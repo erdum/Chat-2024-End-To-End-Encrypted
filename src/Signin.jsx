@@ -2,15 +2,15 @@ import React, { useState } from "react";
 import GoogleIcon from "@mui/icons-material/Google";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
-import { auth, db } from "./firebase";
+import { auth } from "./firebase";
 import {
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "./Logo";
+import { addOrUpdateUser } from "./context/DatabaseContext";
 
 const Signin = () => {
   const [email, setEmail] = useState("");
@@ -64,17 +64,12 @@ const Signin = () => {
     try {
       const provider = new GoogleAuthProvider();
       const { user } = await signInWithPopup(auth, provider);
-      const userDocRef = doc(db, "users", user.uid);
-      const userDocSnap = await getDoc(userDocRef);
 
-      if (!userDocSnap.exists()) {
-        await setDoc(userDocRef, {
-          uid: user.uid,
-          displayName: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-        });
-      }
+      await addOrUpdateUser(
+        user.uid,
+        user.displayName,
+        user.photoURL
+      );
 
       navigate("/");
     } catch (error) {

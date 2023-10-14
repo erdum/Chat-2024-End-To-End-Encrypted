@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { DatabaseContext } from "./context/DatabaseContext";
 import CurrentUserHeader from "./CurrentUserHeader";
 import Search from "./Search";
 import Users from "./Users";
 
-const Sidebar = ({ users, selectedUser, setSelectedUser }) => {
+const Sidebar = ({ selectedUser, setSelectedUser }) => {
   const [searchKeyword, setSearchKeyword] = useState("");
+  const { users } = useContext(DatabaseContext);
 
   const sortedUsers = [...users].sort((a, b) => {
     return a.displayName.localeCompare(b.displayName);

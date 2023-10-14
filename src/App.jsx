@@ -1,17 +1,8 @@
-import React, { useContext, useState, useEffect, useMemo } from "react";
+import React, { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
 import { CryptoKeyContext } from "./context/CryptoKeyContext";
+import { DatabaseContext } from "./context/DatabaseContext";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { 
-  doc,
-  getDocs,
-  getDoc,
-  updateDoc,
-  collection,
-  onSnapshot,
-  query,
-} from "firebase/firestore";
-import { db } from "./firebase";
 import icon from "./assets/icon.png";
 import loader from "./assets/puff.svg";
 import Signin from "./Signin";
@@ -21,20 +12,7 @@ import Home from "./Home";
 const App = () => {
   const { currentUser, isUserLoading } = useContext(AuthContext);
   const { keyInstance } = useContext(CryptoKeyContext);
-  const [users, setUsers] = useState([]);
-
-  useEffect(() => {
-
-    if (!currentUser) return;
-    getUsers();
-  }, [currentUser]);
-
-  const getUsers = async () => {
-    const usersSnapshot = await getDocs(collection(db, "users"));
-    const users = [];
-    usersSnapshot.docs.forEach(userDoc => users.push(userDoc.data()));
-    setUsers(users);
-  };
+  // const { users } = useContext(DatabaseContext);
 
   const ProtectedRoute = ({ children }) => {
     if (!currentUser) {
@@ -43,7 +21,7 @@ const App = () => {
     return children;
   };
 
-  const isAppLoading = isUserLoading || currentUser && (users.length === 0 || !keyInstance);
+  const isAppLoading = isUserLoading || currentUser && !keyInstance;
 
   if (isAppLoading) {
     return (
@@ -63,7 +41,7 @@ const App = () => {
         path="/"
         element={
           <ProtectedRoute>
-            <Home users={users} />
+            <Home />
           </ProtectedRoute>
         }
       />

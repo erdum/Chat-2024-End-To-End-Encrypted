@@ -2,18 +2,18 @@ import React, { useState } from "react";
 import GoogleIcon from "@mui/icons-material/Google";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
-import { auth, db, storage } from "./firebase";
+import { auth, storage } from "./firebase";
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
   updateProfile,
 } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "./Logo";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { Avatar } from "@mui/material";
+import { addOrUpdateUser } from "./context/DatabaseContext";
 
 const Signup = () => {
   const [firstName, setFirstName] = useState("");
@@ -46,10 +46,7 @@ const Signup = () => {
         email,
         password
       );
-
       const user = userCredential.user;
-
-      console.log(user);
 
       if (profileImage) {
         // Upload the profileImage to Firebase Storage
@@ -73,12 +70,11 @@ const Signup = () => {
               photoURL: downloadURL,
             });
 
-            await setDoc(doc(db, "users", user.uid), {
-              uid: user.uid,
-              displayName: `${firstName} ${lastName}`,
-              email: user.email,
-              photoURL: downloadURL,
-            });
+            await addOrUpdateUser(
+              user.uid,
+              `${firstName} ${lastName}`,
+              downloadURL
+            );
 
             setLoading(false);
             navigate("/");
@@ -90,12 +86,11 @@ const Signup = () => {
           photoURL: "",
         });
 
-        await setDoc(doc(db, "users", user.uid), {
-          uid: user.uid,
-          displayName: `${firstName} ${lastName}`,
-          email: user.email,
-          photoURL: "",
-        });
+        await addOrUpdateUser(
+          user.uid,
+          `${firstName} ${lastName}`,
+          ""
+        );
 
         setLoading(false);
         navigate("/");
@@ -125,15 +120,14 @@ const Signup = () => {
     try {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
-
       const user = userCredential.user;
 
-      await setDoc(doc(db, "users", user.uid), {
-        uid: user.uid,
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-      });
+      await addOrUpdateUser(
+        user.uid,
+        `${firstName} ${lastName}`,
+        downloadURL
+      );
+
       navigate("/");
     } catch (error) {
       console.log(error);

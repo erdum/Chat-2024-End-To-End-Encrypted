@@ -1,13 +1,7 @@
 import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "./context/AuthContext";
 import { CryptoKeyContext } from "./context/CryptoKeyContext";
-import { db } from "./firebase";
-import { 
-  doc,
-  updateDoc,
-  arrayRemove,
-  onSnapshot,
-} from "firebase/firestore";
+import { DatabaseContext } from "./context/DatabaseContext";
 import ChatPartnerHeader from "./ChatPartnerHeader";
 import Chats from "./Chats";
 import Input from "./Input";
@@ -17,61 +11,37 @@ import Crypto from "./crypto";
 
 const MainContent = ({ selectedUser }) => {
   const [messages, setMessages] = useState([]);
-  const [selectedUserPublicKey, setSelectedUserPublicKey] = useState(null);
   const { currentUser } = useContext(AuthContext);
   const { keyInstance } = useContext(CryptoKeyContext);
+  const { ciphers, publicKeys, removeDecodedCiphers } = useContext(DatabaseContext);
 
   useEffect(() => {
+
+    if (!selectedUser || ciphers.length === 0) return;
+    (async () => {
+      const [decodedCiphers, successfulCiphers] = await Crypto.decodeAllCiphers(
+        ciphers,
+        keyInstance.privateKey,
+        publicKeys[selectedUser.uid],
+      );
+      const unreadMessages = decodedCiphers.map(cipher => JSON.parse(cipher));
+      setMessages(prevMessages => {
+        IndexedDB.saveMessages([...prevMessages, ...unreadMessages], currentUser.uid);
+        return [...prevMessages, ...unreadMessages];
+      });
+      removeDecodedCiphers(currentUser.uid, successfulCiphers);
+    })();
+  }, [ciphers, selectedUser]);
+
+  useEffect(() => {
+
+    if (!currentUser) return;
+
     (async () => {
       const seenMessages = await IndexedDB.getMessages(currentUser.uid);
       setMessages(seenMessages);
     })();
-  }, []);
-
-  useEffect(() => {
-
-    if (!selectedUserPublicKey) return;
-    console.log(selectedUserPublicKey);
-    const unsub = onSnapshot(
-      doc(db, "users", currentUser.uid),
-      async userDoc => {
-        const unreadCiphers = userDoc.data().unreadCiphers ?? [];
-
-        if (unreadCiphers.length > 0) {
-          const [decodedCiphers, successfulCiphers] = await Crypto.decodeAllCiphers(
-            unreadCiphers,
-            keyInstance.privateKey,
-            selectedUserPublicKey
-          );
-          const unreadMessages = decodedCiphers.map(text => JSON.parse(text));
-          setMessages(prevMessages => {
-            IndexedDB.saveMessages([...prevMessages, ...unreadMessages], currentUser.uid);
-            return [...prevMessages, ...unreadMessages];
-          });
-
-          if (successfulCiphers.length > 0) {
-            await updateDoc(
-              doc(db, "users", currentUser.uid),
-              {
-                unreadCiphers: arrayRemove(...successfulCiphers)
-              }
-            );
-          }
-        }
-      }
-    );
-    return () => unsub()
-  }, [selectedUserPublicKey]);
-
-  useEffect(() => {
-
-    if (!selectedUser) return;
-    const unsub = onSnapshot(
-      doc(db, "users", selectedUser.uid), 
-      userDoc => setSelectedUserPublicKey(userDoc.data().publicKey)
-    );
-    return () => unsub();
-  }, [selectedUser]);
+  }, [currentUser]);
 
   return (
     <>
@@ -79,12 +49,10 @@ const MainContent = ({ selectedUser }) => {
         <div className="relative">
           <ChatPartnerHeader
             user={selectedUser}
-            clearMessages={
-              async () => {
-                setMessages([]);
-                await IndexedDB.clearOnlyMessages();
-              }
-            }
+            clearMessages={() => {
+              setMessages([]);
+              IndexedDB.clearOnlyMessages();
+            }}
           />
           <Chats
             selectedUser={selectedUser}
@@ -92,8 +60,7 @@ const MainContent = ({ selectedUser }) => {
           />
           <Input
             selectedUser={selectedUser}
-            selectedUserPublicKey={selectedUserPublicKey}
-            addMessage={setMessages}
+            setMessages={setMessages}
           />
         </div>
       ) : (

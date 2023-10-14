@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { AuthContext } from "./AuthContext";
-import { db } from "../firebase";
-import { doc, updateDoc } from "firebase/firestore";
+import { addOrUpdatePublicKey } from "./DatabaseContext";
 import IndexedDB from "../indexedDB";
 import Crypto from "../crypto";
 
@@ -28,11 +27,8 @@ export const CryptoKeyProvider = ({ children }) => {
         newKeyInstance.publicKey
       );
       await IndexedDB.saveKeyInstance(newKeyInstance, uid);
-      
-      const userDocRef = doc(db, "users", uid);
-      await updateDoc(userDocRef, {
-        publicKey: exportedPublicKey
-      });
+
+      await addOrUpdatePublicKey(uid, exportedPublicKey);
       
       setKeyInstance(newKeyInstance);
     } else {
@@ -40,10 +36,7 @@ export const CryptoKeyProvider = ({ children }) => {
         localKeyInstance.publicKey
       );
 
-      const userDocRef = doc(db, "users", uid);
-      await updateDoc(userDocRef, {
-        publicKey: exportedPublicKey
-      });
+      await addOrUpdatePublicKey(uid, exportedPublicKey);
       
       setKeyInstance(localKeyInstance);
     }
