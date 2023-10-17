@@ -41,6 +41,8 @@ const ChatPartnerHeader = ({ user, clearMessages }) => {
               toggleMore ? "bg-slate-200" : ""
             } rounded-full`}
             onClick={() => setToggleMore(!toggleMore)}
+            onBlur={() => setToggleMore(!toggleMore)}
+            tabIndex={0}
           >
             <MoreVertIcon className="text-gray-600" />
           </div>
