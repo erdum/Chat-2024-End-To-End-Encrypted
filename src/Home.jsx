@@ -8,7 +8,7 @@ const Home = () => {
   const [touchEnd, setTouchEnd] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(true);
 
-  const minSwipeDistance = 50;
+  const minSwipeDistance = 25;
 
   const onTouchStart = (e) => {
     setTouchEnd(null);
@@ -23,7 +23,7 @@ const Home = () => {
     
     if (!touchStart || !touchEnd) return;
     
-    if (touchStart <= 180 && touchEnd - touchStart > minSwipeDistance) {
+    if (touchStart <= 200 && touchEnd - touchStart > minSwipeDistance) {
       setIsMobileSidebarOpen(true);
     }
 
