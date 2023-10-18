@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MainContent from "./MainContent";
 import Sidebar from "./Sidebar";
 
@@ -8,7 +8,7 @@ const Home = () => {
   const [touchEnd, setTouchEnd] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(true);
 
-  const minSwipeDistance = 100;
+  const minSwipeDistance = 50;
 
   const onTouchStart = (e) => {
     setTouchEnd(null);
@@ -23,7 +23,7 @@ const Home = () => {
     
     if (!touchStart || !touchEnd) return;
     
-    if (touchStart <= minSwipeDistance && touchEnd - touchStart > minSwipeDistance) {
+    if (touchStart <= 180 && touchEnd - touchStart > minSwipeDistance) {
       setIsMobileSidebarOpen(true);
     }
 
@@ -31,6 +31,12 @@ const Home = () => {
       setIsMobileSidebarOpen(false);
     }
   }
+
+  useEffect(() => {
+
+    if (!selectedUser) return;
+    setIsMobileSidebarOpen(false);
+  }, [selectedUser]);
 
   return (
     <div
