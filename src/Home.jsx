@@ -8,7 +8,7 @@ const Home = () => {
   const [touchEnd, setTouchEnd] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(true);
 
-  const minSwipeDistance = 50;
+  const minSwipeDistance = 100;
 
   const onTouchStart = (e) => {
     setTouchEnd(null);
@@ -45,7 +45,7 @@ const Home = () => {
           setSelectedUser={setSelectedUser}
         />
       </div>
-      <div className={`absolute top-0 left-0 h-full bg-white z-10 transition-all overflow-x-hidden ${isMobileSidebarOpen ? 'w-5/6' : 'w-0'} lg:hidden`}>
+      <div className={`absolute top-0 left-0 h-screen bg-white z-10 transition-all overflow-x-hidden ${isMobileSidebarOpen ? 'w-5/6' : 'w-0'} lg:hidden`}>
         <Sidebar
           selectedUser={selectedUser}
           setSelectedUser={setSelectedUser}
