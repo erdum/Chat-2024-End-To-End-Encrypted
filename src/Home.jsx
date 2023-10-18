@@ -23,7 +23,7 @@ const Home = () => {
     
     if (!touchStart || !touchEnd) return;
     
-    if (touchEnd - touchStart > minSwipeDistance) {
+    if (touchStart <= minSwipeDistance && touchEnd - touchStart > minSwipeDistance) {
       setIsMobileSidebarOpen(true);
     }
 
