@@ -46,7 +46,7 @@ const MainContent = ({ selectedUser }) => {
   return (
     <>
       {selectedUser ? (
-        <div className="relative">
+        <div className="relative w-full min-h-screen">
           <ChatPartnerHeader
             user={selectedUser}
             clearMessages={() => {

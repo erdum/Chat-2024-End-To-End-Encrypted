@@ -77,7 +77,7 @@ const Input = ({ selectedUser, setMessages }) => {
   };
 
   return (
-    <div className="bg-slate-100 h-16 border-t border-slate-200 flex items-center px-8 gap-4">
+    <div className="bg-slate-100 h-16 absolute bottom-0 inset-x-0 border-t border-slate-200 flex items-center px-8 gap-4">
       {/*<label htmlFor="file">
         <AttachFileIcon
           className="text-gray-600 w-200 text-4xl rotate-45 cursor-pointer"
@@ -108,7 +108,7 @@ const Input = ({ selectedUser, setMessages }) => {
           ref={inputRef}
         />
         {imagePreview && (
-          <div className="absolute bottom-16 left-0 right-0 top-16 border-4 border-slate-400 border-dashed flex justify-center items-center bg-slate-200">
+          <div className="absolute bottom-16 inset-x-0 z-50 top-16 border-4 border-slate-400 border-dashed flex justify-center items-center bg-slate-200">
             <img
               src={imagePreview}
               alt="Preview"

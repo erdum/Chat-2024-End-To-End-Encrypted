@@ -34,7 +34,7 @@ const Chats = ({ selectedUser, messages }) => {
   };
 
   return (
-    <div className="chats p-4 h-[calc(100vh-128px)] overflow-y-auto bg-slate-200">
+    <div className="chats absolute top-16 inset-x-0 p-4 h-[calc(100%-128px)] overflow-y-auto bg-slate-200">
       {filteredMessages.map((message) => {
         return (
           <div
