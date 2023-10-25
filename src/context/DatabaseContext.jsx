@@ -2,11 +2,9 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { getDatabase, ref, set, push, onValue, off } from "firebase/database";
 import { AuthContext } from "./AuthContext";
 import { CryptoKeyContext } from "./CryptoKeyContext";
-import IndexedDB from "../indexedDB";
 import Crypto from "../crypto";
 
 const database = getDatabase();
-
 export const DatabaseContext = createContext();
 
 export const addOrUpdateUser = async (uid, displayName, photoURL) => {
