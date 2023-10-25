@@ -1,24 +1,49 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { getDatabase, ref, set, push, onValue, off } from "firebase/database";
 import { AuthContext } from "./AuthContext";
 import { CryptoKeyContext } from "./CryptoKeyContext";
 import Crypto from "../crypto";
+import { db } from "../firebase";
+import {
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  onSnapshot,
+  updateDoc,
+  arrayUnion,
+  arrayRemove
+} from "firebase/firestore";
 
-const database = getDatabase();
 export const DatabaseContext = createContext();
 
 export const addOrUpdateUser = async (uid, displayName, photoURL) => {
-  const userRef = ref(database, 'users/' + uid);
-  set(userRef, {
-    uid,
-    displayName,
-    photoURL
-  });
+  const docRef = doc(db, 'users', uid);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    await updateDoc(docRef, {
+      uid,
+      displayName,
+      photoURL
+    });
+  } else {
+    await setDoc(docRef, {
+      uid,
+      displayName,
+      photoURL
+    });
+  }
 };
 
 export const addOrUpdatePublicKey = async (uid, publicKey) => {
-  const publicKeyRef = ref(database, 'publicKeys/' + uid);
-  set(publicKeyRef, publicKey);
+  const docRef = doc(db, 'publicKeys', uid);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    await updateDoc(docRef, publicKey);
+  } else {
+    await setDoc(docRef, publicKey);
+  }
 };
 
 export const DatabaseContextProvider = ({ children }) => {
@@ -29,11 +54,23 @@ export const DatabaseContextProvider = ({ children }) => {
   const { keyInstance } = useContext(CryptoKeyContext);
 
   useEffect(() => {
-    const usersRef = ref(database, 'users/');
-    const unsubUsers = onValue(usersRef, snapshot => setUsers(Object.values(snapshot.val())));
+    const usersRef = collection(db, 'users');
+    const unsubUsers = onSnapshot(usersRef, (querySnapshot) => {
+      const newUsers = [];
+      querySnapshot.forEach((doc) => {
+        newUsers.push(doc.data());
+      });
+      setUsers(newUsers);
+    });
 
-    const publicKeysRef = ref(database, 'publicKeys/');
-    const unsubPublicKeys = onValue(publicKeysRef, snapshot => setPublicKeys(snapshot.val()));
+    const publicKeysRef = collection(db, 'publicKeys');
+    const unsubPublicKeys = onSnapshot(publicKeysRef, (querySnapshot) => {
+      const newPublicKeys = {};
+      querySnapshot.forEach((doc) => {
+        newPublicKeys[doc.id] = doc.data();
+      });
+      setPublicKeys(newPublicKeys);
+    });
 
     return () => {
       unsubUsers();
@@ -44,8 +81,11 @@ export const DatabaseContextProvider = ({ children }) => {
   useEffect(() => {
 
     if (!currentUser) return;
-    const ciphersRef = ref(database, 'ciphers/' + currentUser.uid);
-    const unsubCiphers = onValue(ciphersRef, snapshot => setCiphers(Object.values(snapshot.val() ?? {})));
+    const ciphersRef = doc(db, 'ciphers', currentUser.uid);
+    const unsubCiphers = onSnapshot(ciphersRef, (doc) => {
+      const data = doc.data();
+      if (data?.ciphers) setCiphers(data.ciphers);
+    });
 
     return () => unsubCiphers();
   }, [currentUser]);
@@ -57,13 +97,23 @@ export const DatabaseContextProvider = ({ children }) => {
       keyInstance.privateKey
     );
 
-    const receiverRef = ref(database, 'ciphers/' + receiverUid);
-    push(receiverRef, cipher);
+    const docRef = doc(db, 'ciphers', receiverUid);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      await updateDoc(docRef, { ciphers: arrayUnion(cipher) });
+    } else {
+      await setDoc(docRef, { ciphers: arrayUnion(cipher) });
+    }
   }
 
   const removeDecodedCiphers = async (uid, unsuccessfulCiphers) => {
-    const ciphersRef = ref(database, 'ciphers/' + uid);
-    set(ciphersRef, null);
+    const docRef = doc(db, 'ciphers', uid);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      await updateDoc(docRef, { ciphers: arrayRemove(...unsuccessfulCiphers) });
+    }
   }
 
   return (
