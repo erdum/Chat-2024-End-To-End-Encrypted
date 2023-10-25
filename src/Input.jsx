@@ -108,7 +108,7 @@ const Input = ({ selectedUser, setMessages }) => {
           ref={inputRef}
         />
         {imagePreview && (
-          <div className="absolute bottom-16 inset-x-0 z-50 top-16 border-4 border-slate-400 border-dashed flex justify-center items-center bg-slate-200">
+          <div className="absolute bottom-16 inset-x-0 h-[calc(100vh-8rem)] border-4 border-slate-400 border-dashed flex justify-center items-center bg-slate-200">
             <img
               src={imagePreview}
               alt="Preview"
