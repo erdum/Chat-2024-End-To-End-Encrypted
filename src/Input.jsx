@@ -1,16 +1,11 @@
-import React, { useState, useContext, useRef, useEffect } from "react";
+import { useState, useContext, useRef, useEffect } from "react";
 import SendIcon from "@mui/icons-material/Send";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import CloseIcon from "@mui/icons-material/Close";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
-import { updateDoc, doc, arrayUnion, onSnapshot } from "firebase/firestore";
-import { db } from "./firebase";
-import Loader from "./assets/oval.svg";
-import Crypto from "./crypto";
 import IndexedDB from "./indexedDB";
 import { AuthContext } from "./context/AuthContext";
 import { DatabaseContext } from "./context/DatabaseContext";
-import { CryptoKeyContext } from "./context/CryptoKeyContext";
 
 const Input = ({ selectedUser, setMessages }) => {
   const [message, setMessage] = useState("");

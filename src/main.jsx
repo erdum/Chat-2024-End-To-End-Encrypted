@@ -1,4 +1,3 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
 import { AuthProvider } from "./context/AuthContext";
 import { CryptoKeyProvider } from "./context/CryptoKeyContext";

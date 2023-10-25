@@ -1,4 +1,3 @@
-import React, { useContext, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 
 const Search = ({ searchKeyword, onSearchChange }) => {

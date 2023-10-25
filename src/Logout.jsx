@@ -1,5 +1,3 @@
-import React from "react";
-
 const Logout = () => {
   const logout = async () => {
     try {

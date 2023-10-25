@@ -1,5 +1,5 @@
 import { Avatar } from "@mui/material";
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
 
 const Users = ({ users, onUserClick, selectedUser }) => {

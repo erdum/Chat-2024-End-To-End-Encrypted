@@ -1,7 +1,7 @@
 import { Avatar } from "@mui/material";
 import { signOut } from "firebase/auth";
 import LogoutIcon from "@mui/icons-material/Logout";
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import { auth } from "./firebase";

@@ -1,16 +1,6 @@
+import { useContext, useState } from "react";
 import { Avatar } from "@mui/material";
-import React, { useContext, useState } from "react";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import PhoneIcon from "@mui/icons-material/Phone";
-import VideocamIcon from "@mui/icons-material/Videocam";
-import {
-  collectionGroup,
-  deleteDoc,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
-import { db } from "./firebase";
 import { AuthContext } from "./context/AuthContext";
 
 const ChatPartnerHeader = ({ user, clearMessages }) => {
@@ -33,8 +23,6 @@ const ChatPartnerHeader = ({ user, clearMessages }) => {
         <h4 className="font-semibold">{user.displayName}</h4>
       </div>
       <div className="flex items-center gap-8">
-{/*        <PhoneIcon className="text-gray-600" />
-        <VideocamIcon className="text-gray-600" />*/}
         <div>
           <div
             className={`cursor-pointer p-2 ${
