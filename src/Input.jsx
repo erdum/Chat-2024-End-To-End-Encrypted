@@ -1,6 +1,7 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
 import SendIcon from "@mui/icons-material/Send";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
+import CloseIcon from "@mui/icons-material/Close";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { updateDoc, doc, arrayUnion, onSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
@@ -23,6 +24,7 @@ const Input = ({ selectedUser, setMessages }) => {
   }, []);
 
   const handleImageChange = (e) => {
+    inputRef.current.focus();
     const file = e.target.files[0];
 
     if (file) {
@@ -36,7 +38,13 @@ const Input = ({ selectedUser, setMessages }) => {
     }
   };
 
+  const handleRemoveImage = (e) => {
+    inputRef.current.focus();
+    setImagePreview(null);
+  }
+
   const sendMessage = async (e) => {
+    inputRef.current.focus();
     setMessage("");
     if (message.trim() !== "" || imagePreview) {
       try {
@@ -69,6 +77,8 @@ const Input = ({ selectedUser, setMessages }) => {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       sendMessage();
+    } else if (e.key === "Escape" && imagePreview) {
+      handleRemoveImage();
     }
   };
 
@@ -113,6 +123,11 @@ const Input = ({ selectedUser, setMessages }) => {
               src={imagePreview}
               alt="Preview"
               style={{ maxWidth: "50%", maxHeight: "80%" }}
+            />
+            <CloseIcon
+              className="absolute right-8 top-8 cursor-pointer text-slate-600"
+              style={{ fontSize: '1.8rem' }}
+              onClick={handleRemoveImage}
             />
           </div>
         )}
