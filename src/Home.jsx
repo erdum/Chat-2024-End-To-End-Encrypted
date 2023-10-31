@@ -4,39 +4,48 @@ import Sidebar from "./Sidebar";
 
 const Home = () => {
   const [selectedUser, setSelectedUser] = useState(null);
-  const [touchStart, setTouchStart] = useState(null);
-  const [touchEnd, setTouchEnd] = useState(null);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(true);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const [sidebarOffset, setSidebarOffset] = useState(0);
 
-  const minSwipeDistance = 25;
+  const onTouchStart = (e) => setTouchStart(e.nativeEvent.touches[0].pageX);
+  const onTouchMove = (e) => setTouchEnd(e.nativeEvent.touches[0].pageX);
 
-  const onTouchStart = (e) => {
-    setTouchEnd(null);
-    setTouchStart(e.nativeEvent.touches[0].pageX);
-  }
-
-  const onTouchMove = (e) => {
-    setTouchEnd(e.nativeEvent.touches[0].pageX);
-  }
-
-  const onTouchEnd = () => {
-    
-    if (!touchStart || !touchEnd) return;
-    
-    if (touchStart <= 200 && touchEnd - touchStart > minSwipeDistance) {
-      setIsMobileSidebarOpen(true);
-    }
-
-    if (touchStart - touchEnd > minSwipeDistance) {
-      setIsMobileSidebarOpen(false);
-    }
-  }
+  const swipeThreshold = 25;
+  const siwpeEndDamping = 20;
+  const leftToRight = (touchEnd - touchStart) > swipeThreshold;
+  const rightToLeft = (touchEnd - touchStart) < swipeThreshold;
 
   useEffect(() => {
 
-    if (!selectedUser) return;
-    setIsMobileSidebarOpen(false);
-  }, [selectedUser]);
+    if (leftToRight && touchEnd <= (window.innerWidth * 0.8) + siwpeEndDamping) {
+      setSidebarOffset(touchEnd);
+    } else if (rightToLeft) {
+      setSidebarOffset(touchEnd);
+    }
+  }, [touchEnd]);
+
+  const onTouchEnd = (e) => {
+    const width = window.innerWidth;
+
+    if (leftToRight) {
+
+      if (touchEnd > (width / 3)) {
+        setSidebarOffset(width * 0.8);
+      } else {
+        setSidebarOffset(0);
+      }
+    }
+
+    if (rightToLeft) {
+
+      if (touchEnd < (width / 3)) {
+        setSidebarOffset(0);
+      } else {
+        setSidebarOffset(width * 0.8);
+      }
+    }
+  }
 
   return (
     <div
@@ -51,7 +60,12 @@ const Home = () => {
           setSelectedUser={setSelectedUser}
         />
       </div>
-      <div className={`absolute top-0 left-0 h-screen bg-white z-10 transition-all overflow-x-hidden ${isMobileSidebarOpen ? 'w-5/6' : 'w-0'} lg:hidden`}>
+      <div
+        className={`absolute top-0 w-[80%] h-screen bg-white z-10 transition-all overflow-x-hidden lg:hidden`}
+        style={{
+          left: `calc(-80% + ${sidebarOffset}px)`
+        }}
+      >
         <Sidebar
           selectedUser={selectedUser}
           setSelectedUser={setSelectedUser}
