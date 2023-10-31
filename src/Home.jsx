@@ -11,17 +11,26 @@ const Home = () => {
   const onTouchStart = (e) => setTouchStart(e.nativeEvent.touches[0].pageX);
   const onTouchMove = (e) => setTouchEnd(e.nativeEvent.touches[0].pageX);
 
-  const swipeThreshold = 100;
+  const swipeThreshold = 50;
   const siwpeEndDamping = 20;
   const leftToRight = (touchEnd - touchStart) > swipeThreshold;
   const rightToLeft = (touchStart - touchEnd) > swipeThreshold;
 
   useEffect(() => {
 
-    if (leftToRight && touchEnd <= (window.innerWidth * 0.8) + siwpeEndDamping) {
-      setSidebarOffset(touchEnd);
+    if (leftToRight) {
+
+      if (
+        touchEnd > sidebarOffset &&
+        touchEnd < (window.innerWidth * 0.8) + siwpeEndDamping
+      ) {
+        setSidebarOffset(touchEnd);
+      }
     } else if (rightToLeft) {
-      setSidebarOffset(touchEnd);
+
+      if (sidebarOffset >= window.innerWidth * 0.8 || sidebarOffset > 0) {
+        setSidebarOffset(touchEnd);
+      }
     }
   }, [touchEnd]);
 
@@ -35,9 +44,7 @@ const Home = () => {
       } else {
         setSidebarOffset(0);
       }
-    }
-
-    if (rightToLeft) {
+    } else if (rightToLeft) {
 
       if (touchEnd < (width / 3)) {
         setSidebarOffset(0);
