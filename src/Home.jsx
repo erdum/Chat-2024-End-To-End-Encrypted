@@ -37,20 +37,10 @@ const Home = () => {
   const onTouchEnd = (e) => {
     const width = window.innerWidth;
 
-    if (leftToRight) {
-
-      if (touchEnd > (width / 3)) {
-        setSidebarOffset(width * 0.8);
-      } else {
-        setSidebarOffset(0);
-      }
-    } else if (rightToLeft) {
-
-      if (touchEnd < (width / 3)) {
-        setSidebarOffset(0);
-      } else {
-        setSidebarOffset(width * 0.8);
-      }
+    if (touchEnd > (width / 3)) {
+      setSidebarOffset(width * 0.8);
+    } else {
+      setSidebarOffset(0);
     }
   }
 
