@@ -11,10 +11,10 @@ const Home = () => {
   const onTouchStart = (e) => setTouchStart(e.nativeEvent.touches[0].pageX);
   const onTouchMove = (e) => setTouchEnd(e.nativeEvent.touches[0].pageX);
 
-  const swipeThreshold = 25;
+  const swipeThreshold = 100;
   const siwpeEndDamping = 20;
   const leftToRight = (touchEnd - touchStart) > swipeThreshold;
-  const rightToLeft = (touchEnd - touchStart) < swipeThreshold;
+  const rightToLeft = (touchStart - touchEnd) > swipeThreshold;
 
   useEffect(() => {
 
