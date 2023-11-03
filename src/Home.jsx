@@ -44,6 +44,15 @@ const Home = () => {
     }
   }
 
+  useEffect(() => {
+
+    if (!selectedUser) {
+      setSidebarOffset(window.innerWidth * 0.8);
+    } else {
+      setSidebarOffset(0);
+    }
+  }, [selectedUser]);
+
   return (
     <div
       className="flex min-h-screen bg-slate-100 w-full lg:max-w-[1400px] lg:min-w-[850px] mx-auto"
