@@ -8,6 +8,11 @@ const Home = () => {
   const [touchEnd, setTouchEnd] = useState(0);
   const [sidebarOffset, setSidebarOffset] = useState(window.innerWidth * 0.8);
 
+  const swipeThreshold = 50;
+  const siwpeEndDamping = 20;
+  const leftToRight = (touchEnd - touchStart) > swipeThreshold;
+  const rightToLeft = (touchStart - touchEnd) > swipeThreshold;
+
   const onTouchStart = (e) => setTouchStart(e.nativeEvent.touches[0].pageX);
   const onTouchMove = (e) => {
     const currentTouch = e.nativeEvent.touches[0].pageX;
@@ -29,13 +34,10 @@ const Home = () => {
     setTouchEnd(currentTouch);
   }
 
-  const swipeThreshold = 50;
-  const siwpeEndDamping = 20;
-  const leftToRight = (touchEnd - touchStart) > swipeThreshold;
-  const rightToLeft = (touchStart - touchEnd) > swipeThreshold;
-
   const onTouchEnd = (e) => {
     const width = window.innerWidth;
+
+    if (!(leftToRight || rightToLeft)) return;
 
     if (touchEnd > (width / 3)) {
       setSidebarOffset(width * 0.8);
