@@ -9,30 +9,30 @@ const Home = () => {
   const [sidebarOffset, setSidebarOffset] = useState(0);
 
   const onTouchStart = (e) => setTouchStart(e.nativeEvent.touches[0].pageX);
-  const onTouchMove = (e) => setTouchEnd(e.nativeEvent.touches[0].pageX);
+  const onTouchMove = (e) => {
+    const currentTouch = e.nativeEvent.touches[0].pageX;
+
+    if (leftToRight) {
+
+      if (
+        currentTouch > sidebarOffset &&
+        currentTouch < (window.innerWidth * 0.8) + siwpeEndDamping
+      ) {
+        setSidebarOffset(currentTouch);
+      }
+    } else if (rightToLeft) {
+
+      if (sidebarOffset >= window.innerWidth * 0.8 || sidebarOffset > 0) {
+        setSidebarOffset(currentTouch);
+      }
+    }
+    setTouchEnd(currentTouch);
+  }
 
   const swipeThreshold = 50;
   const siwpeEndDamping = 20;
   const leftToRight = (touchEnd - touchStart) > swipeThreshold;
   const rightToLeft = (touchStart - touchEnd) > swipeThreshold;
-
-  useEffect(() => {
-
-    if (leftToRight) {
-
-      if (
-        touchEnd > sidebarOffset &&
-        touchEnd < (window.innerWidth * 0.8) + siwpeEndDamping
-      ) {
-        setSidebarOffset(touchEnd);
-      }
-    } else if (rightToLeft) {
-
-      if (sidebarOffset >= window.innerWidth * 0.8 || sidebarOffset > 0) {
-        setSidebarOffset(touchEnd);
-      }
-    }
-  }, [touchEnd]);
 
   const onTouchEnd = (e) => {
     const width = window.innerWidth;
