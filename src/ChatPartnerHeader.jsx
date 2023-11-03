@@ -22,7 +22,7 @@ const ChatPartnerHeader = ({ user, clearMessages }) => {
         )}
         <h4 className="font-semibold">{user.displayName}</h4>
       </div>
-      <div className="flex items-center gap-8">
+      {/*<div className="flex items-center gap-8">
         <div>
           <div
             className={`cursor-pointer p-2 ${
@@ -45,7 +45,7 @@ const ChatPartnerHeader = ({ user, clearMessages }) => {
             </div>
           )}
         </div>
-      </div>
+      </div>*/}
     </div>
   );
 };
