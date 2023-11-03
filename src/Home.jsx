@@ -6,7 +6,7 @@ const Home = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
-  const [sidebarOffset, setSidebarOffset] = useState(0);
+  const [sidebarOffset, setSidebarOffset] = useState(window.innerWidth * 0.8);
 
   const onTouchStart = (e) => setTouchStart(e.nativeEvent.touches[0].pageX);
   const onTouchMove = (e) => {
