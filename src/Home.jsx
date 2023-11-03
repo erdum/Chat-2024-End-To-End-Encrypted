@@ -9,7 +9,7 @@ const Home = () => {
   const [sidebarOffset, setSidebarOffset] = useState(window.innerWidth * 0.8);
 
   const swipeThreshold = 50;
-  const siwpeEndDamping = 20;
+  const siwpeEndDamping = 10;
   const leftToRight = (touchEnd - touchStart) > swipeThreshold;
   const rightToLeft = (touchStart - touchEnd) > swipeThreshold;
 
