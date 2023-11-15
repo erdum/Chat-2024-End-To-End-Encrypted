@@ -9,6 +9,7 @@ const Home = () => {
   const [sidebarOffset, setSidebarOffset] = useState(window.innerWidth * 0.8);
 
   const swipeOpenThreshold = 40;
+  const swipeEffectSpeed = 8;
 
   const onTouchStart = (e) => {
     const touchStartPosition = e.nativeEvent.touches[0].pageX;
@@ -32,9 +33,9 @@ const Home = () => {
     ) return;
 
     if (swipeDistance < 0 && sidebarOffset < (window.innerWidth * 0.8)) {
-      setSidebarOffset(prevValue => (prevValue + 2));
+      setSidebarOffset(prevValue => (prevValue + swipeEffectSpeed));
     } else {
-      setSidebarOffset(prevValue => (prevValue - 2));
+      setSidebarOffset(prevValue => (prevValue - swipeEffectSpeed));
     }
   }
 
