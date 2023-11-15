@@ -8,43 +8,47 @@ const Home = () => {
   const [touchEnd, setTouchEnd] = useState(0);
   const [sidebarOffset, setSidebarOffset] = useState(window.innerWidth * 0.8);
 
-  const swipeThreshold = 50;
-  const siwpeEndDamping = 10;
-  const leftToRight = (touchEnd - touchStart) > swipeThreshold;
-  const rightToLeft = (touchStart - touchEnd) > swipeThreshold;
+  const swipeOpenThreshold = 40;
 
-  const onTouchStart = (e) => setTouchStart(e.nativeEvent.touches[0].pageX);
+  const onTouchStart = (e) => {
+    const touchStartPosition = e.nativeEvent.touches[0].pageX;
+
+    if (sidebarOffset == 0 && touchStartPosition < swipeOpenThreshold) {
+      setTouchStart(touchStartPosition);
+    } else if (sidebarOffset == (window.innerWidth * 0.8)) {
+      setTouchStart(touchStartPosition);
+    } else {
+      setTouchStart(null);
+    }
+  };
+
   const onTouchMove = (e) => {
     const currentTouch = e.nativeEvent.touches[0].pageX;
+    const swipeDistance = touchStart - currentTouch;
 
-    if (leftToRight) {
+    if (
+      !touchStart
+      || currentTouch >= (window.innerWidth * 0.8)
+    ) return;
 
-      if (
-        currentTouch > sidebarOffset &&
-        currentTouch < (window.innerWidth * 0.8) + siwpeEndDamping
-      ) {
-        setSidebarOffset(currentTouch);
-      }
-    } else if (rightToLeft) {
-
-      if (sidebarOffset >= window.innerWidth * 0.8 || sidebarOffset > 0) {
-        setSidebarOffset(currentTouch);
-      }
+    if (swipeDistance < 0 && sidebarOffset < (window.innerWidth * 0.8)) {
+      setSidebarOffset(prevValue => (prevValue + 2));
+    } else {
+      setSidebarOffset(prevValue => (prevValue - 2));
     }
-    setTouchEnd(currentTouch);
   }
 
   const onTouchEnd = (e) => {
-    const width = window.innerWidth;
 
-    if (!(leftToRight || rightToLeft)) return;
-
-    if (touchEnd > (width / 3)) {
-      setSidebarOffset(width * 0.8);
-    } else {
+    // Snap sidebar when user releases the sidebar
+    if (sidebarOffset > (window.innerWidth / 3)) {
+      setSidebarOffset(window.innerWidth * 0.8);
+    } else if (sidebarOffset < (window.innerWidth / 3)) {
       setSidebarOffset(0);
     }
   }
+
+  useEffect(() => console.log(sidebarOffset), [sidebarOffset]);
 
   useEffect(() => {
 
