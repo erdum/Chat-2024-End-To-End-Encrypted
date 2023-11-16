@@ -37,7 +37,7 @@ const Home = () => {
       && swipeDistance <= 0
     ) return;
 
-    if (swipeDistance < 0 && sidebarOffset < (window.innerWidth * 0.8)) {
+    if (swipeDistance < 10 && sidebarOffset < (window.innerWidth * 0.8)) {
       setSidebarOffset(prevValue => (prevValue + swipeEffectSpeed));
     } else {
       setSidebarOffset(prevValue => (prevValue - swipeEffectSpeed));
