@@ -11,7 +11,7 @@ const Home = () => {
   const [sidebarOffset, setSidebarOffset] = useState(window.innerWidth * 0.8);
 
   const swipeThreshold = 10;
-  const swipeEffectSpeed = 8;
+  const swipeEffectSpeed = 15;
 
   const onTouchStart = (e) => {
     const touchStartPositionX = e.nativeEvent.touches[0].pageX;
