@@ -10,7 +10,7 @@ const Home = () => {
   const [touchEndY, setTouchEndY] = useState(null);
   const [sidebarOffset, setSidebarOffset] = useState(window.innerWidth * 0.8);
 
-  const swipeThreshold = 50;
+  const swipeThreshold = 10;
   const swipeEffectSpeed = 8;
 
   const onTouchStart = (e) => {
@@ -33,11 +33,17 @@ const Home = () => {
 
     if (isLeft && Math.abs(swipeDistanceX) > swipeDistanceY) {
       setSidebarOffset(prevValue => (prevValue - swipeEffectSpeed));
+      setTouchStartX(currentTouchX);
+      setTouchStartY(currentTouchY);
     }
 
     if (isRight && Math.abs(swipeDistanceX) > swipeDistanceY) {
 
-      if (sidebarOffset < (window.innerWidth * 0.8)) setSidebarOffset(prevValue => (prevValue + swipeEffectSpeed));
+      if (sidebarOffset < (window.innerWidth * 0.8)) {
+        setSidebarOffset(prevValue => (prevValue + swipeEffectSpeed));
+        setTouchStartX(currentTouchX);
+        setTouchStartY(currentTouchY);
+      }
     }
   }
 
