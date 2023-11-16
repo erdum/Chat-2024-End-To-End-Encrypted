@@ -4,48 +4,46 @@ import Sidebar from "./Sidebar";
 
 const Home = () => {
   const [selectedUser, setSelectedUser] = useState(null);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
+  const [touchStartX, setTouchStartX] = useState(null);
+  const [touchStartY, setTouchStartY] = useState(null);
+  const [touchEndX, setTouchEndX] = useState(null);
+  const [touchEndY, setTouchEndY] = useState(null);
   const [sidebarOffset, setSidebarOffset] = useState(window.innerWidth * 0.8);
 
-  const swipeOpenThreshold = 40;
+  const swipeThreshold = 50;
   const swipeEffectSpeed = 8;
 
   const onTouchStart = (e) => {
-    const touchStartPosition = e.nativeEvent.touches[0].pageX;
-
-    if (sidebarOffset == 0 && touchStartPosition < swipeOpenThreshold) {
-      setTouchStart(touchStartPosition);
-    } else if (sidebarOffset == (window.innerWidth * 0.8)) {
-      setTouchStart(touchStartPosition);
-    } else {
-      setTouchStart(null);
-    }
+    const touchStartPositionX = e.nativeEvent.touches[0].pageX;
+    const touchStartPositionY = e.nativeEvent.touches[0].pageY;
+    setTouchStartX(touchStartPositionX);
+    setTouchStartY(touchStartPositionY);
+    setTouchEndX(null);
+    setTouchEndY(null);
   };
 
   const onTouchMove = (e) => {
-    const currentTouch = e.nativeEvent.touches[0].pageX;
-    const swipeDistance = touchStart - currentTouch;
+    const currentTouchX = e.nativeEvent.touches[0].pageX;
+    const currentTouchY = e.nativeEvent.touches[0].pageY;
+    const swipeDistanceX = touchStartX - currentTouchX;
+    const swipeDistanceY = touchStartY - currentTouchY;
 
-    if (
-      !touchStart
-      || currentTouch >= (window.innerWidth * 0.8)
-    ) return;
+    const isLeft = swipeDistanceX > swipeThreshold;
+    const isRight = swipeDistanceX < -swipeThreshold;
 
-    if (
-      sidebarOffset == (window.innerWidth * 0.8)
-      && swipeDistance <= 0
-    ) return;
-
-    if (swipeDistance < 10 && sidebarOffset < (window.innerWidth * 0.8)) {
-      setSidebarOffset(prevValue => (prevValue + swipeEffectSpeed));
-      setTouchStart(currentTouch);
-    } else {
+    if (isLeft && Math.abs(swipeDistanceX) > swipeDistanceY) {
       setSidebarOffset(prevValue => (prevValue - swipeEffectSpeed));
+    }
+
+    if (isRight && Math.abs(swipeDistanceX) > swipeDistanceY) {
+
+      if (sidebarOffset < (window.innerWidth * 0.8)) setSidebarOffset(prevValue => (prevValue + swipeEffectSpeed));
     }
   }
 
   const onTouchEnd = (e) => {
+
+    if (!(touchStartX || touchEndX)) return;
 
     // Snap sidebar when user releases the sidebar
     if (sidebarOffset > (window.innerWidth / 3)) {
