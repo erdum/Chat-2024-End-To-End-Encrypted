@@ -80,7 +80,7 @@ const Home = () => {
         />
       </div>
       <div
-        className={`absolute top-0 w-[80%] h-screen bg-white z-10 transition-all overflow-x-hidden lg:hidden`}
+        className={`absolute top-0 w-[80%] h-screen bg-white z-10 transition-all ease-in duration-200 overflow-x-hidden lg:hidden`}
         style={{
           left: `calc(-80% + ${sidebarOffset}px)`
         }}
