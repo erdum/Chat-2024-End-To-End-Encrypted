@@ -59,8 +59,6 @@ const Home = () => {
     }
   }
 
-  useEffect(() => console.log(sidebarOffset), [sidebarOffset]);
-
   useEffect(() => {
 
     if (!selectedUser) {
