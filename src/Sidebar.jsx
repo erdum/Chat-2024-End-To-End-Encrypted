@@ -22,7 +22,7 @@ const Sidebar = ({ selectedUser, setSelectedUser }) => {
   };
 
   return (
-    <div className="border-e h-full flex flex-col">
+    <div className="border-e h-full flex flex-col bg-white">
       <CurrentUserHeader />
       <Search
         searchKeyword={searchKeyword}
