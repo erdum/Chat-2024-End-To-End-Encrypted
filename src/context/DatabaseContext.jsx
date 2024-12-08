@@ -76,7 +76,7 @@ export const DatabaseContextProvider = ({ children }) => {
       unsubUsers();
       unsubPublicKeys();
     };
-  }, []);
+  }, [currentUser]);
 
   useEffect(() => {
 
