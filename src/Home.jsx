@@ -32,7 +32,9 @@ const Home = () => {
           onChange={() => {
 
             if (!isSidebarOpen) setIsSidebarOpen(true);
-          }}>
+          }}
+          handleWidth={50}
+        >
           <Sidebar
             selectedUser={selectedUser}
             setSelectedUser={setSelectedUser}
