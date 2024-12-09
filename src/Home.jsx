@@ -26,21 +26,22 @@ const Home = () => {
           setSelectedUser={setSelectedUser}
         />
       </div>
-      <Drawer
-        open={isSidebarOpen}
-        peakingWidth={0}
-        onChange={() => {
+      <div className="lg:hidden">
+        <Drawer
+          open={isSidebarOpen}
+          peakingWidth={0}
+          onChange={() => {
 
-          if (!isSidebarOpen) setIsSidebarOpen(true);
-        }}
-        handleWidth={50}
-        className="lg:hidden"
-      >
-        <Sidebar
-          selectedUser={selectedUser}
-          setSelectedUser={setSelectedUser}
-        />
-      </Drawer>
+            if (!isSidebarOpen) setIsSidebarOpen(true);
+          }}
+          handleWidth={50}
+        >
+          <Sidebar
+            selectedUser={selectedUser}
+            setSelectedUser={setSelectedUser}
+          />
+        </Drawer>
+      </div>
       <div className="bg-slate-300 flex-1">
         <MainContent
           selectedUser={selectedUser}
