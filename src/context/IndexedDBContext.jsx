@@ -5,7 +5,7 @@ export const IndexedDBContext = createContext();
 export const IndexedDBProvider = ({ children }) => {
   const [db, setDb] = useState(null);
 
-  useState(() => {
+  useEffect(() => {
     const request = window.indexedDB.open("dchat-store", 1);
     request.onerror = (event) => {
       console.error(`Database error: ${event.target.error?.message}`);
