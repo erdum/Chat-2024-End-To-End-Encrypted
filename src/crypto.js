@@ -38,7 +38,7 @@ const Crypto = (() => {
       true,
       ["encrypt"]
     );
-    const initializationVector = window.crypto.getRandomValues(new Uint8Array(96));
+    const initializationVector = window.crypto.getRandomValues(new Uint8Array(12));
     const cipherBytesArray = await window.crypto.subtle.encrypt(
       { name: "AES-GCM", iv: initializationVector },
       secretKey,
