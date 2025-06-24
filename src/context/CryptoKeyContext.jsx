@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { AuthContext } from "./AuthContext";
-import { addOrUpdatePublicKey } from "./DatabaseContext";
-import IndexedDB from "../indexedDB";
+import { IndexedDBContext } from "./IndexedDBContext";
 import Crypto from "../crypto";
 
 export const CryptoKeyContext = createContext();
@@ -9,35 +8,34 @@ export const CryptoKeyContext = createContext();
 export const CryptoKeyProvider = ({ children }) => {
   const [keyInstance, setKeyInstance] = useState(null);
   const { currentUser } = useContext(AuthContext);
+  const {
+    saveCryptoKeyInstance,
+    getCryptoKeyInstance
+  } = useContext(IndexedDBContext);
 
   useEffect(() => {
 
     if (!currentUser) return;
+
     (async () => {
-      getOrGenerateKeyInstance(currentUser.uid);
+      getOrGenerateKeyInstance(currentUser.email);
     })();
   }, [currentUser]);
 
-  const getOrGenerateKeyInstance = async (uid) => {
-    const localKeyInstance = await IndexedDB.getKeyInstance(uid);
+  const getOrGenerateKeyInstance = async (email) => {
+    const localKeyInstance = await getCryptoKeyInstance(email);
 
     if (localKeyInstance === null) {
       const newKeyInstance = await Crypto.generateKeyPairInstance();
-      const exportedPublicKey = await Crypto.exportPublicKey(
-        newKeyInstance.publicKey
-      );
-      await IndexedDB.saveKeyInstance(newKeyInstance, uid);
-
-      await addOrUpdatePublicKey(uid, exportedPublicKey);
-      
+      // const exportedPublicKey = await Crypto.exportPublicKey(
+      //   newKeyInstance.publicKey
+      // );
+      await saveCryptoKeyInstance(newKeyInstance, email);
       setKeyInstance(newKeyInstance);
     } else {
-      const exportedPublicKey = await Crypto.exportPublicKey(
-        localKeyInstance.publicKey
-      );
-
-      await addOrUpdatePublicKey(uid, exportedPublicKey);
-      
+      // const exportedPublicKey = await Crypto.exportPublicKey(
+      //   localKeyInstance.publicKey
+      // );
       setKeyInstance(localKeyInstance);
     }
   };
