@@ -26,13 +26,89 @@ export const IndexedDBProvider = ({ children }) => {
     return () => db.close();
   }, []);
 
+  const clearCryptoKeyInstanceStore = () => {
+    const trx = db.transaction("cryptoKeyInstances", "readwrite");
+    const store = trx.objectStore("cryptoKeyInstances");
+    store.clear();
+  };
+
+  const clearChatStore = () => {
+    const trx = db.transaction("chats", "readwrite");
+    const store = trx.objectStore("chats");
+    store.clear();
+  };
+
   const clearDB = () => {
-    db.transaction("cryptoKeyInstances", "readwrite");
-    db.transaction("chats", "readwrite");
+    clearCryptoKeyInstanceStore();
+    clearChatStore();
+  };
+
+  const saveCryptoKeyInstance = async (email, cryptoKeyInstance) => {
+    const trx = db.transaction("cryptoKeyInstances", "readwrite");
+    const store = trx.objectStore("cryptoKeyInstances");
+    const request = store.put(cryptoKeyInstance, email);
+
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  };
+
+  const getCryptoKeyInstance = async (email) => {
+    const trx = db.transaction("cryptoKeyInstances", "readonly");
+    const store = trx.objectStore("cryptoKeyInstances");
+    const request = store.get(email);
+
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  };
+
+  const saveChat = (email, chatObject) => {
+    const trx = db.transaction("chats", "readwrite");
+    const store = trx.objectStore("chats");
+    const request = store.put(chatObject, email);
+
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  };
+
+  const getChat = (email) => {
+    const trx = db.transaction("chats", "readonly");
+    const store = trx.objectStore("chats");
+    const request = store.get(email);
+
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  };
+
+  const getAllChats = () => {
+    const trx = db.transaction("chats", "readonly");
+    const store = trx.objectStore("chats");
+    const request = store.getAll();
+
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
   };
 
   return (
-    <IndexedDBContext.Provider value={{ db }}>
+    <IndexedDBContext.Provider
+      value={{
+        clearDB,
+        saveCryptoKeyInstance,
+        getCryptoKeyInstance,
+        saveChat,
+        getChat,
+        getAllChats
+      }}
+    >
       {children}
     </IndexedDBContext.Provider>
   );
