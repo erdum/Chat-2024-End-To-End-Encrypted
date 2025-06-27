@@ -29,7 +29,7 @@ const CurrentUserHeader = () => {
           } rounded-full`}
           onClick={() => setToggleMore(!toggleMore)}
           onBlur={() => setToggleMore(!toggleMore)}
-          tabIndex={0}
+          // tabIndex={0}
         >
           <MoreVertIcon />
         </div>
