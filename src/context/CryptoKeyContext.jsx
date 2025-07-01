@@ -18,19 +18,20 @@ export const CryptoKeyProvider = ({ children }) => {
     if (!currentUser) return;
 
     (async () => {
-      getOrGenerateKeyInstance(currentUser.email);
+      await getOrGenerateKeyInstance(currentUser.email);
     })();
   }, [currentUser]);
 
   const getOrGenerateKeyInstance = async (email) => {
     const localKeyInstance = await getCryptoKeyInstance(email);
 
-    if (localKeyInstance === null) {
+    if (localKeyInstance === undefined) {
       const newKeyInstance = await Crypto.generateKeyPairInstance();
       // const exportedPublicKey = await Crypto.exportPublicKey(
       //   newKeyInstance.publicKey
       // );
-      await saveCryptoKeyInstance(newKeyInstance, email);
+
+      await saveCryptoKeyInstance(email, newKeyInstance);
       setKeyInstance(newKeyInstance);
     } else {
       // const exportedPublicKey = await Crypto.exportPublicKey(
