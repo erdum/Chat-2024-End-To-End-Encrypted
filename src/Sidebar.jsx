@@ -1,19 +1,15 @@
 import { useState, useContext } from "react";
-import { DatabaseContext } from "./context/DatabaseContext";
+import { SignalContext } from "./context/SignalContext";
 import CurrentUserHeader from "./CurrentUserHeader";
 import Search from "./Search";
 import Users from "./Users";
 
 const Sidebar = ({ selectedUser, setSelectedUser }) => {
   const [searchKeyword, setSearchKeyword] = useState("");
-  const { users } = useContext(DatabaseContext);
+  const { users } = useContext(SignalContext);
 
-  const sortedUsers = [...users].sort((a, b) => {
-    return a.displayName.localeCompare(b.displayName);
-  });
-
-  const filteredUsers = sortedUsers.filter((user) =>
-    user.displayName.toLowerCase().includes(searchKeyword.toLowerCase())
+  const filteredUsers = users.filter((user) =>
+    user.toLowerCase().includes(searchKeyword.toLowerCase())
   );
 
   const handleUserClick = (user) => {
