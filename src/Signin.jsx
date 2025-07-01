@@ -10,7 +10,6 @@ import {
 } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "./Logo";
-import { addOrUpdateUser } from "./context/DatabaseContext";
 
 const Signin = () => {
   const [email, setEmail] = useState("");
@@ -61,16 +60,13 @@ const Signin = () => {
   };
 
   const handleGoogleSignin = async () => {
+    setLoading(true);
+
     try {
       const provider = new GoogleAuthProvider();
       const { user } = await signInWithPopup(auth, provider);
 
-      await addOrUpdateUser(
-        user.uid,
-        user.displayName,
-        user.photoURL
-      );
-
+      setLoading(false);
       navigate("/");
     } catch (error) {
       console.log(error);
