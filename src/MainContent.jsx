@@ -1,47 +1,45 @@
 import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "./context/AuthContext";
 import { CryptoKeyContext } from "./context/CryptoKeyContext";
-import { DatabaseContext } from "./context/DatabaseContext";
 import ChatPartnerHeader from "./ChatPartnerHeader";
 import Chats from "./Chats";
 import Input from "./Input";
 import Logo from "./Logo";
-import IndexedDB from "./indexedDB";
 import Crypto from "./crypto";
 
 const MainContent = ({ selectedUser }) => {
   const [messages, setMessages] = useState([]);
   const { currentUser } = useContext(AuthContext);
   const { keyInstance } = useContext(CryptoKeyContext);
-  const { ciphers, publicKeys, removeDecodedCiphers } = useContext(DatabaseContext);
+  // const { ciphers, publicKeys, removeDecodedCiphers } = useContext(DatabaseContext);
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    if (!selectedUser || ciphers.length === 0) return;
-    (async () => {
-      const [decodedCiphers, successfulCiphers] = await Crypto.decodeAllCiphers(
-        ciphers,
-        keyInstance.privateKey,
-        publicKeys[selectedUser.uid],
-      );
-      const unreadMessages = decodedCiphers.map(cipher => JSON.parse(cipher));
-      setMessages(prevMessages => {
-        IndexedDB.saveMessages([...prevMessages, ...unreadMessages], currentUser.uid);
-        return [...prevMessages, ...unreadMessages];
-      });
-      removeDecodedCiphers(currentUser.uid, successfulCiphers);
-    })();
-  }, [ciphers, selectedUser]);
+  //   if (!selectedUser || ciphers.length === 0) return;
+  //   (async () => {
+  //     const [decodedCiphers, successfulCiphers] = await Crypto.decodeAllCiphers(
+  //       ciphers,
+  //       keyInstance.privateKey,
+  //       publicKeys[selectedUser.uid],
+  //     );
+  //     const unreadMessages = decodedCiphers.map(cipher => JSON.parse(cipher));
+  //     setMessages(prevMessages => {
+  //       // IndexedDB.saveMessages([...prevMessages, ...unreadMessages], currentUser.uid);
+  //       return [...prevMessages, ...unreadMessages];
+  //     });
+  //     removeDecodedCiphers(currentUser.uid, successfulCiphers);
+  //   })();
+  // }, [ciphers, selectedUser]);
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    if (!currentUser) return;
+  //   if (!currentUser) return;
 
-    (async () => {
-      const seenMessages = await IndexedDB.getMessages(currentUser.uid);
-      setMessages(seenMessages);
-    })();
-  }, [currentUser]);
+  //   (async () => {
+  //     // const seenMessages = await IndexedDB.getMessages(currentUser.uid);
+  //     setMessages(seenMessages);
+  //   })();
+  // }, [currentUser]);
 
   return (
     <>
@@ -51,7 +49,7 @@ const MainContent = ({ selectedUser }) => {
             user={selectedUser}
             clearMessages={() => {
               setMessages([]);
-              IndexedDB.clearOnlyMessages();
+              // IndexedDB.clearOnlyMessages();
             }}
           />
           <Chats

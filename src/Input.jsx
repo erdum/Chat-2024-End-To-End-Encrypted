@@ -3,15 +3,12 @@ import SendIcon from "@mui/icons-material/Send";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import CloseIcon from "@mui/icons-material/Close";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
-import IndexedDB from "./indexedDB";
 import { AuthContext } from "./context/AuthContext";
-import { DatabaseContext } from "./context/DatabaseContext";
 
 const Input = ({ selectedUser, setMessages }) => {
   const [message, setMessage] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const { currentUser } = useContext(AuthContext);
-  const { sendCipher } = useContext(DatabaseContext);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -55,14 +52,14 @@ const Input = ({ selectedUser, setMessages }) => {
           timestamp: Date.now(),
         };
         setMessages(prevMessages => {
-          IndexedDB.saveMessages([...prevMessages, payload], currentUser.uid);
+          // IndexedDB.saveMessages([...prevMessages, payload], currentUser.uid);
           return [...prevMessages, payload];
         });
-        sendCipher(
-          currentUser.uid,
-          selectedUser.uid,
-          payload
-        );
+        // sendCipher(
+        //   currentUser.uid,
+        //   selectedUser.uid,
+        //   payload
+        // );
       } catch (error) {
         console.log(error);
       }

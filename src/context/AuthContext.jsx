@@ -1,19 +1,20 @@
 import { onAuthStateChanged } from "firebase/auth";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "../firebase";
-import IndexedDB from "../indexedDB";
+import { IndexedDBContext } from "./IndexedDBContext";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [isUserLoading, setIsUserLoading] = useState(true);
+  const { clearDB } = useContext(IndexedDBContext);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
 
-      if (user === null) (async () => IndexedDB.clear())();
+      if (user === null) (async () => clearDB())();
       setIsUserLoading(false);
     });
     return () => unsubscribe();
