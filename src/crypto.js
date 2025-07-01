@@ -1,8 +1,8 @@
 const Crypto = (() => {
-  // publicKey: CryptoKey, returns exported public key in jwk format
-  const exportPublicKey = async (publicKey) => {
-    const exportPublicKey = await window.crypto.subtle.exportKey('jwk', publicKey);
-    return exportPublicKey;
+  // key: CryptoKey, returns exported key in jwk format
+  const exportKey = async (key) => {
+    const exportedKey = await window.crypto.subtle.exportKey('jwk', key);
+    return exportedKey;
   };
 
   // return CryptoKey object with asymmetric keyPair
@@ -126,7 +126,7 @@ const Crypto = (() => {
 
   return {
     generateKeyPairInstance,
-    exportPublicKey,
+    exportKey,
     encodeCipher,
     decodeAllCiphers,
   };
