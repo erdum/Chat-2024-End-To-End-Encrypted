@@ -18,9 +18,9 @@ const ChatPartnerHeader = ({ user, clearMessages }) => {
         {user.photoURL ? (
           <Avatar src={user.photoURL} imgProps={{ referrerPolicy: "no-referrer" }} />
         ) : (
-          <Avatar>{user.displayName?.[0]}</Avatar>
+          <Avatar></Avatar>
         )}
-        <h4 className="font-semibold">{user.displayName}</h4>
+        <h4 className="font-semibold">{user}</h4>
       </div>
       {/*<div className="flex items-center gap-8">
         <div>
