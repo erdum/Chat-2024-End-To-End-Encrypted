@@ -4,9 +4,9 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { useContext, useState } from "react";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
-import { auth } from "./firebase";
+import { auth } from "../../utils/firebase";
 import { Link } from "react-router-dom";
-import { AuthContext } from "./context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 
 const CurrentUserHeader = () => {
   const [toggleMore, setToggleMore] = useState(false);

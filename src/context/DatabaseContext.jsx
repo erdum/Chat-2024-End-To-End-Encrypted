@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { AuthContext } from "./AuthContext";
 import { CryptoKeyContext } from "./CryptoKeyContext";
-import Crypto from "../crypto";
-import { db } from "../firebase";
+import Crypto from "../utils/crypto";
+import { db } from "../utils/firebase";
 import {
   collection,
   doc,

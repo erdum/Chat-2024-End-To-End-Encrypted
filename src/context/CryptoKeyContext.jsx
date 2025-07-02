@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { AuthContext } from "./AuthContext";
 import { IndexedDBContext } from "./IndexedDBContext";
-import Crypto from "../crypto";
+import Crypto from "../utils/crypto";
 
 export const CryptoKeyContext = createContext();
 

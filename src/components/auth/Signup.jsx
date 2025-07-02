@@ -2,7 +2,7 @@ import { useState } from "react";
 import GoogleIcon from "@mui/icons-material/Google";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
-import { auth, storage } from "./firebase";
+import { auth, storage } from "../../utils/firebase";
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
@@ -10,10 +10,10 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
-import Logo from "./Logo";
+import Logo from "../Logo";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { Avatar } from "@mui/material";
-import { addOrUpdateUser } from "./context/DatabaseContext";
+import { addOrUpdateUser } from "../../context/DatabaseContext";
 
 const Signup = () => {
   const [firstName, setFirstName] = useState("");

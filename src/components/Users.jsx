@@ -1,6 +1,6 @@
 import { Avatar } from "@mui/material";
 import { useContext } from "react";
-import { AuthContext } from "./context/AuthContext";
+import { AuthContext } from "../context/AuthContext";
 
 const Users = ({ users, onUserClick, selectedUser }) => {
   const { currentUser } = useContext(AuthContext);

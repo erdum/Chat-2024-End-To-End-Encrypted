@@ -2,14 +2,14 @@ import { useState } from "react";
 import GoogleIcon from "@mui/icons-material/Google";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
-import { auth } from "./firebase";
+import { auth } from "../../utils/firebase";
 import {
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
-import Logo from "./Logo";
+import Logo from "../Logo";
 
 const Signin = () => {
   const [email, setEmail] = useState("");

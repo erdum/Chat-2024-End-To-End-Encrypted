@@ -1,5 +1,5 @@
 import { useContext, useRef, useMemo, useEffect } from "react";
-import { AuthContext } from "./context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 
 const formatTimestamp = (timestamp) => {
   const date = new Date(timestamp);

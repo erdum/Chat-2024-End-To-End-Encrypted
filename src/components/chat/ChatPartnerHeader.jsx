@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { Avatar } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { AuthContext } from "./context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 
 const ChatPartnerHeader = ({ user, clearMessages }) => {
   const { currentUser } = useContext(AuthContext);

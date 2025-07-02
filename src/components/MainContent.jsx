@@ -1,11 +1,11 @@
 import { useContext, useState, useEffect } from "react";
-import { AuthContext } from "./context/AuthContext";
-import { CryptoKeyContext } from "./context/CryptoKeyContext";
-import ChatPartnerHeader from "./ChatPartnerHeader";
-import Chats from "./Chats";
-import Input from "./Input";
+import { AuthContext } from "../context/AuthContext";
+import { CryptoKeyContext } from "../context/CryptoKeyContext";
+import ChatPartnerHeader from "./chat/ChatPartnerHeader";
+import Chats from "./chat/Chats";
+import Input from "./chat/Input";
 import Logo from "./Logo";
-import Crypto from "./crypto";
+import Crypto from "../utils/crypto";
 
 const MainContent = ({ selectedUser }) => {
   const [messages, setMessages] = useState([]);

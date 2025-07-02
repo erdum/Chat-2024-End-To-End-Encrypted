@@ -5,14 +5,13 @@ import { DatabaseContext } from "./context/DatabaseContext";
 import { Navigate, Route, Routes } from "react-router-dom";
 import icon from "./assets/icon.png";
 import loader from "./assets/puff.svg";
-import Signin from "./Signin";
-import Signup from "./Signup";
-import Home from "./Home";
+import Signin from "./components/auth/Signin";
+import Signup from "./components/auth/Signup";
+import Home from "./pages/Home";
 
 const App = () => {
   const { currentUser, isUserLoading } = useContext(AuthContext);
   const { keyInstance } = useContext(CryptoKeyContext);
-  // const { users } = useContext(DatabaseContext);
 
   const ProtectedRoute = ({ children }) => {
     if (!currentUser) {
