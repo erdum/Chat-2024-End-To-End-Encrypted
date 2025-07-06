@@ -1,8 +1,10 @@
 import { Avatar } from "@mui/material";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { useStore } from "../store";
 
-const Users = ({ users, onUserClick, selectedUser }) => {
+const Users = ({ users, onUserClick }) => {
+  const selectedUser = useStore((state) => state.selectedUser);
   const { currentUser } = useContext(AuthContext);
 
   const sortedUsers = [...users].sort((a, b) => {

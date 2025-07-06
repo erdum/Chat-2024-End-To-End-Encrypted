@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-const useStore = create((set) => ({
+export const useStore = create((set) => ({
   selectedUser: null,
   isSidebarOpen: false,
   messages: [],

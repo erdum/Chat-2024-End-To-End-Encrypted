@@ -3,9 +3,11 @@ import { SignalContext } from "../../context/SignalContext";
 import CurrentUserHeader from "./CurrentUserHeader";
 import Search from "../Search";
 import Users from "../Users";
+import { useStore } from "../../store";
 
-const Sidebar = ({ selectedUser, setSelectedUser }) => {
+const Sidebar = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
+  const setSelectedUser = useStore((state) => state.setSelectedUser);
   const { users } = useContext(SignalContext);
 
   const filteredUsers = users.filter((user) =>
@@ -27,7 +29,6 @@ const Sidebar = ({ selectedUser, setSelectedUser }) => {
       <Users
         users={filteredUsers}
         onUserClick={handleUserClick}
-        selectedUser={selectedUser}
       />
     </div>
   );

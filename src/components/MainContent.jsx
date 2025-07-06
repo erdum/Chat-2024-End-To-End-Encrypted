@@ -6,11 +6,13 @@ import Chats from "./chat/Chats";
 import Input from "./chat/Input";
 import Logo from "./Logo";
 import Crypto from "../utils/crypto";
+import { useStore } from "../store";
 
-const MainContent = ({ selectedUser }) => {
+const MainContent = () => {
   const [messages, setMessages] = useState([]);
   const { currentUser } = useContext(AuthContext);
   const { keyInstance } = useContext(CryptoKeyContext);
+  const selectedUser = useStore((state) => state.selectedUser);
   // const { ciphers, publicKeys, removeDecodedCiphers } = useContext(DatabaseContext);
 
   // useEffect(() => {
