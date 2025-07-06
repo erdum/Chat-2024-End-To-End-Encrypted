@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
 import { CryptoKeyContext } from "./context/CryptoKeyContext";
-import { DatabaseContext } from "./context/DatabaseContext";
 import { Navigate, Route, Routes } from "react-router-dom";
 import icon from "./assets/icon.png";
 import loader from "./assets/puff.svg";

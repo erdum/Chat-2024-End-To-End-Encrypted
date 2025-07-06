@@ -13,7 +13,6 @@ import { Link, useNavigate } from "react-router-dom";
 import Logo from "../Logo";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { Avatar } from "@mui/material";
-import { addOrUpdateUser } from "../../context/DatabaseContext";
 
 const Signup = () => {
   const [firstName, setFirstName] = useState("");
@@ -70,11 +69,11 @@ const Signup = () => {
               photoURL: downloadURL,
             });
 
-            await addOrUpdateUser(
-              user.uid,
-              `${firstName} ${lastName}`,
-              downloadURL
-            );
+            // await addOrUpdateUser(
+            //   user.uid,
+            //   `${firstName} ${lastName}`,
+            //   downloadURL
+            // );
 
             setLoading(false);
             navigate("/");
@@ -86,11 +85,11 @@ const Signup = () => {
           photoURL: "",
         });
 
-        await addOrUpdateUser(
-          user.uid,
-          `${firstName} ${lastName}`,
-          ""
-        );
+        // await addOrUpdateUser(
+        //   user.uid,
+        //   `${firstName} ${lastName}`,
+        //   ""
+        // );
 
         setLoading(false);
         navigate("/");
@@ -122,11 +121,11 @@ const Signup = () => {
       const userCredential = await signInWithPopup(auth, provider);
       const user = userCredential.user;
 
-      await addOrUpdateUser(
-        user.uid,
-        `${firstName} ${lastName}`,
-        downloadURL
-      );
+      // await addOrUpdateUser(
+      //   user.uid,
+      //   `${firstName} ${lastName}`,
+      //   downloadURL
+      // );
 
       navigate("/");
     } catch (error) {
