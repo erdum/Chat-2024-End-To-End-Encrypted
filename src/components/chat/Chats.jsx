@@ -1,5 +1,6 @@
 import { useContext, useRef, useMemo, useEffect } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import { useStore } from "../../store";
 
 const formatTimestamp = (timestamp) => {
   const date = new Date(timestamp);
@@ -7,25 +8,15 @@ const formatTimestamp = (timestamp) => {
   return time;
 };
 
-const Chats = ({ selectedUser, messages }) => {
+const Chats = ({ selectedUser }) => {
   const { currentUser } = useContext(AuthContext);
   const chatRef = useRef(null);
+  const messages = useStore((state) => state.messages);
 
   const filteredMessages = useMemo(
-    () => messages.filter(message => {
-      return (
-        (
-          message.receiverId == currentUser.uid
-          && message.senderId == selectedUser.uid
-        )
-        || (
-          message.receiverId == selectedUser.uid
-          && message.senderId == currentUser.uid
-        )
-      );
-    }),
+    () => messages[selectedUser],
     [messages, selectedUser]
-  );
+  ) ?? [];
 
   useEffect(() => scrollToBottom(), [filteredMessages]);
 
@@ -39,7 +30,7 @@ const Chats = ({ selectedUser, messages }) => {
         return (
           <div
             className={`relative flex ${
-              message.senderId == currentUser.uid
+              message.sender == currentUser.email
                 ? "justify-end"
                 : "justify-start"
             }`}
@@ -48,7 +39,7 @@ const Chats = ({ selectedUser, messages }) => {
             {message.imageUrl ? (
               <div
                 className={`shadow mb-1 p-1 rounded-lg max-w-[80%] lg:max-w-[60%] ${
-                  message.senderId == currentUser.uid
+                  message.sender == currentUser.email
                     ? "bg-emerald-500 text-white rounded-tr-none"
                     : "bg-white text-slate-600 rounded-tl-none"
                 }`}
@@ -63,7 +54,7 @@ const Chats = ({ selectedUser, messages }) => {
                   {message.timestamp && (
                     <p
                       className={`text-[11px] ${
-                        message.senderId == currentUser.uid
+                        message.sender == currentUser.email
                           ? "text-slate-200"
                           : "text-slate-400"
                       }`}
@@ -76,7 +67,7 @@ const Chats = ({ selectedUser, messages }) => {
             ) : (
               <div
                 className={`flex items-end shadow mb-1 py-1 px-2 rounded-lg max-w-[80%] lg:max-w-[60%] ${
-                  message.senderId == currentUser.uid
+                  message.sender == currentUser.email
                     ? "bg-emerald-500 text-white rounded-tr-none"
                     : "bg-white text-slate-600 rounded-tl-none"
                 }`}
@@ -85,7 +76,7 @@ const Chats = ({ selectedUser, messages }) => {
                 {message.timestamp && (
                   <p
                     className={`text-[11px] ${
-                      message.senderId == currentUser.uid
+                      message.sender == currentUser.email
                         ? "text-slate-200"
                         : "text-slate-400"
                     }`}

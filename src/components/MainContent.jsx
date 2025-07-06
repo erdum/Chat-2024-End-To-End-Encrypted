@@ -9,10 +9,10 @@ import Crypto from "../utils/crypto";
 import { useStore } from "../store";
 
 const MainContent = () => {
-  const [messages, setMessages] = useState([]);
   const { currentUser } = useContext(AuthContext);
   const { keyInstance } = useContext(CryptoKeyContext);
   const selectedUser = useStore((state) => state.selectedUser);
+  const setMessages = useStore((state) => state.setMessages);
   // const { ciphers, publicKeys, removeDecodedCiphers } = useContext(DatabaseContext);
 
   // useEffect(() => {
@@ -56,11 +56,9 @@ const MainContent = () => {
           />
           <Chats
             selectedUser={selectedUser}
-            messages={messages}
           />
           <Input
             selectedUser={selectedUser}
-            setMessages={setMessages}
           />
         </div>
       ) : (

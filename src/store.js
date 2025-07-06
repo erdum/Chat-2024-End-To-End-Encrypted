@@ -3,12 +3,29 @@ import { create } from 'zustand'
 export const useStore = create((set) => ({
   selectedUser: null,
   isSidebarOpen: false,
-  messages: [],
+  messages: {},
 
-  setSidebarOpen: () => set((state) => ({ ...state, isSidebarOpen: true })),
-  setSidebarClose: () => set((state) => ({ ...state, isSidebarOpen: false })),
+  setSidebarOpen: () => set((state) => ({ isSidebarOpen: true })),
+  setSidebarClose: () => set((state) => ({ isSidebarOpen: false })),
 
-  setSelectedUser: (user) => set((state) => ({ ...state, selectedUser: user })),
+  setSelectedUser: (user) => set((state) => ({ selectedUser: user })),
 
-  setMessages: (messages) => set((state) => ({ ...state, messages })),
+  addMessage: (userEmail, messagePayload) =>
+    set((state) => ({
+      messages: {
+        ...state.messages,
+        [userEmail]: [
+          ...(state.messages[userEmail] || []),
+          messagePayload,
+        ],
+      },
+    })),
+
+  setMessages: (userEmail, messagesArray) =>
+    set((state) => ({
+      messages: {
+        ...state.messages,
+        [userEmail]: messagesArray,
+      },
+    })),
 }));

@@ -1,15 +1,17 @@
-import { useState, useContext, useRef, useEffect } from "react";
+import { useState, useContext, useRef, useEffect, useCallback } from "react";
 import SendIcon from "@mui/icons-material/Send";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import CloseIcon from "@mui/icons-material/Close";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { AuthContext } from "../../context/AuthContext";
+import { useStore } from "../../store";
 
-const Input = ({ selectedUser, setMessages }) => {
+const Input = ({ selectedUser }) => {
   const [message, setMessage] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const { currentUser } = useContext(AuthContext);
   const inputRef = useRef(null);
+  const addMessage = useStore((state) => state.addMessage);
 
   useEffect(() => {
     inputRef.current.focus();
@@ -35,36 +37,37 @@ const Input = ({ selectedUser, setMessages }) => {
     setImagePreview(null);
   }
 
-  const sendMessage = async (e) => {
-    inputRef.current.focus();
-    setMessage("");
-    if (message.trim() !== "" || imagePreview) {
-      try {
+  const sendMessage = useCallback(
+    () => {
+      inputRef.current.focus();
+      setMessage("");
+      if (message.trim() !== "" || imagePreview) {
+        try {
 
-        if (imagePreview) {
-          setImagePreview(null);
+          if (imagePreview) {
+            setImagePreview(null);
+          }
+          const payload = {
+            sender: currentUser.email,
+            receiver: selectedUser,
+            message,
+            imageUrl: imagePreview,
+            timestamp: Date.now(),
+          };
+          addMessage(selectedUser, payload);
+          // IndexedDB.saveMessages([...prevChats, payload], currentUser.uid);
+          // sendCipher(
+          //   currentUser.uid,
+          //   selectedUser.uid,
+          //   payload
+          // );
+        } catch (error) {
+          console.error(error);
         }
-        const payload = {
-          senderId: currentUser.uid,
-          receiverId: selectedUser.uid,
-          message,
-          imageUrl: imagePreview,
-          timestamp: Date.now(),
-        };
-        setMessages(prevMessages => {
-          // IndexedDB.saveMessages([...prevMessages, payload], currentUser.uid);
-          return [...prevMessages, payload];
-        });
-        // sendCipher(
-        //   currentUser.uid,
-        //   selectedUser.uid,
-        //   payload
-        // );
-      } catch (error) {
-        console.log(error);
       }
-    }
-  };
+    },
+    [selectedUser, message]
+  );
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
