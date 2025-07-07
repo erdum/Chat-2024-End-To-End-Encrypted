@@ -1,11 +1,49 @@
 const Crypto = (() => {
-  // key: CryptoKey, returns exported key in jwk format
+  const IV_LENGTH = 12;
+
+  // key: CryptoKey
+  // return: exported key in jwk format
   const exportKey = async (key) => {
     const exportedKey = await window.crypto.subtle.exportKey('jwk', key);
     return exportedKey;
   };
 
-  // return CryptoKey object with asymmetric keyPair
+  // jwk: exported key in jwk format
+  // return: CryptoKey
+  const importKey = async (jwk) => {
+    const importedKey = await window.crypto.subtle.importKey(
+      'jwk',
+      jwk,
+      {
+        name: "ECDH",
+        namedCurve: "P-384",
+      },
+      true,
+      []
+    );
+    return importedKey;
+  }
+
+  // publicKey: CryptoKey, privateKey: CryptoKey
+  // return: CryptoKey
+  const deriveKey =  async (publicKey, privateKey) => {
+    const sharedKey = await window.crypto.subtle.deriveKey(
+      {
+        name: "ECDH",
+        public: publicKey,
+      },
+      privateKey,
+      {
+        name: "AES-GCM",
+        length: 256,
+      },
+      true,
+      ["encrypt"]
+    );
+    return sharedKey;
+  }
+
+  // return: CryptoKey object with asymmetric keyPair
   const generateKeyPairInstance = async () => {
     const newKeyPairInstance = await window.crypto.subtle.generateKey(
       {
@@ -18,117 +56,86 @@ const Crypto = (() => {
     return newKeyPairInstance;
   };
 
-  // data: string, receiverPublicKey: asymmetric public-key in (jwk) format, senderPrivateKey: CryptoKey
-  // return: string
-  const encodeCipher = async (data, receiverPublicKey, senderPrivateKey) => {
-    const publicKey = await window.crypto.subtle.importKey('jwk', receiverPublicKey, {
-      name: "ECDH",
-      namedCurve: "P-384",
-    }, true, []);
-    const secretKey = await window.crypto.subtle.deriveKey(
-      {
-        name: "ECDH",
-        public: publicKey,
-      },
-      senderPrivateKey,
-      {
-        name: "AES-GCM",
-        length: 256,
-      },
-      true,
-      ["encrypt"]
+  // data: Object, receiverJwk: asymmetric public-key in (jwk) format, senderPrivateKey: CryptoKey
+  // return: ArrayBuffer
+  const encodeCipher = async (data, receiverJwk, senderPrivateKey) => {
+    const receiverPublicKey = await importKey(receiverJwk);
+    const secretKey = await deriveKey(receiverPublicKey, senderPrivateKey)
+    const initializationVector = window.crypto.getRandomValues(
+      new Uint8Array(IV_LENGTH)
     );
-    const initializationVector = window.crypto.getRandomValues(new Uint8Array(12));
     const cipherBytesArray = await window.crypto.subtle.encrypt(
       { name: "AES-GCM", iv: initializationVector },
       secretKey,
-      new TextEncoder().encode(data)
+      objectToBytes(data)
     );
-    return arrayBufferToBase64(cipherBytesArray) + "----" + arrayBufferToBase64(initializationVector);
+    return bundleIvCipher(initializationVector, cipherBytesArray);
   };
 
-  // data: base64, receiverPrivateKey: CryptoKey, senderPublicKey: asymmetric public-key in (jwk) format
-  // return: string
-  const decodeCipher = async (cipher, initializationVector, receiverPrivateKey, senderPublicKey) => {
+  // cipher: ArrayBuffer, receiverPrivateKey: CryptoKey, senderJwk: asymmetric public-key in (jwk) format
+  // return: Object
+  const decodeCipher = async (cipher, receiverPrivateKey, senderJwk) => {
     try {
-      const publicKey = await window.crypto.subtle.importKey('jwk', senderPublicKey, {
-        name: "ECDH",
-        namedCurve: "P-384",
-      }, true, []);
-      const secretKey = await window.crypto.subtle.deriveKey(
-        {
-          name: "ECDH",
-          public: publicKey,
-        },
-        receiverPrivateKey,
-        {
-          name: "AES-GCM",
-          length: 256,
-        },
-        true,
-        ["decrypt"]
-      );
+      const publicKey = await importKey(senderJwk);
+      const secretKey = await deriveKey(publicKey, receiverPrivateKey);
+      const [iv, cipherBytes] = unbundleIvCipher(cipher);
       const decodedCipher = await window.crypto.subtle.decrypt(
         {
           name: "AES-GCM",
-          iv: base64ToArrayBuffer(initializationVector)
+          iv
         },
         secretKey,
-        base64ToArrayBuffer(cipher)
+        cipherBytes
       );
-      return new TextDecoder().decode(decodedCipher);
+      return bytesToObject(decodedCipher);
     } catch (error) {
-      throw new Error("Failed to decrypt cipher, error: " + error);
+      throw new Error("Failed to decrypt cipher.");
     }
   };
 
-  // data: array[base64], receiverPrivateKey: CryptoKey, senderPublicKey: asymmetric public-key in (jwk) format
-  // return: array[string]
-  const decodeAllCiphers = async (ciphers, receiverPrivateKey, senderPublicKey) => {
-    const promises = [];
-    ciphers.forEach(data => {
-      const parts = data.split("----");
-      const cipher = parts[0];
-      const iv = parts[1];
-      promises.push(decodeCipher(cipher, iv, receiverPrivateKey, senderPublicKey))
-    });
-    const results = await Promise.all(promises.map(p => p.catch(e => e)));
-    const usuccessfulCiphers = [];
-    const decodedCiphers = results.filter((result, index) => {
-
-      if (result instanceof Error) return false;
-      
-      usuccessfulCiphers.push(ciphers[index]);
-      return true;
-    });
-    return [decodedCiphers, usuccessfulCiphers];
-  };
-
-  const arrayBufferToBase64 = (buffer) => {
-    var binary = '';
-    var bytes = new Uint8Array(buffer);
-    var len = bytes.byteLength;
-    for (var i = 0; i < len; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    return window.btoa(binary);
+  // object: Object
+  // return: Uint8Array
+  const objectToBytes = (object) => {
+    return new TextEncoder().encode(JSON.stringify(object));
   }
 
-  const base64ToArrayBuffer = (base64) => {
-    var binary_string = window.atob(base64);
-    var len = binary_string.length;
-    var bytes = new Uint8Array(len);
-    for (var i = 0; i < len; i++) {
-      bytes[i] = binary_string.charCodeAt(i);
-    }
-    return bytes.buffer;
+  // bytes: ArrayBuffer
+  // return: Object
+  const bytesToObject = (bytes) => {
+    return JSON.parse(new TextDecoder().decode(bytes));
+  }
+
+  // iv: Uint8Array, cipherBytesArray: ArrayBuffer
+  // return: ArrayBuffer
+  const bundleIvCipher = (iv, cipherBytesArray) => {
+    const outBytes = new Uint8Array(iv.length + cipherBytesArray.length);
+    outBytes.set(iv, 0);
+    outBytes.set(cipherBytesArray, iv.length);
+    return outBytes.buffer;
+  }
+
+  // bundleBytes: ArrayBuffer
+  // return: [Uint8Array, Uint8Array]
+  const unbundleIvCipher = (bundleBytes) => {
+    const bundle = new Uint8Array(bundleBytes);
+    const iv = bundle.slice(0, IV_LENGTH);
+    const cipher = bundle.slice(IV_LENGTH);
+    return [iv, cipher];
   }
 
   return {
     generateKeyPairInstance,
     exportKey,
+    importKey,
+    deriveKey,
     encodeCipher,
-    decodeAllCiphers,
+    decodeCipher,
+    utils: {
+      objectToBytes,
+      bytesToObject,
+      bundleIvCipher,
+      unbundleIvCipher
+    }
   };
 })();
 
